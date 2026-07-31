@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": ".test-build",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "jsx": "react-jsx"
+  },
+  "include": [
+    "lib/safety/prohibited-filter.ts"
+  ]
+}

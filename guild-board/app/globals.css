@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mapbox ships its own stylesheet; the CSP-safe way to include it is to import
+   it from the component that uses it. See components/board/task-map.tsx. */
+
+@layer base {
+  :root {
+    --background: 40 33% 98%;
+    --foreground: 24 10% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 24 10% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 10% 10%;
+
+    /* Guild Board's mark colour: an ink-on-parchment amber. */
+    --primary: 24 74% 38%;
+    --primary-foreground: 40 33% 98%;
+
+    --secondary: 36 24% 92%;
+    --secondary-foreground: 24 10% 18%;
+
+    --muted: 36 20% 94%;
+    --muted-foreground: 24 6% 44%;
+
+    --accent: 36 30% 90%;
+    --accent-foreground: 24 10% 18%;
+
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 40 33% 98%;
+
+    --border: 30 14% 88%;
+    --input: 30 14% 88%;
+    --ring: 24 74% 38%;
+
+    --radius: 0.6rem;
+  }
+
+  .dark {
+    --background: 24 10% 8%;
+    --foreground: 40 20% 94%;
+
+    --card: 24 10% 11%;
+    --card-foreground: 40 20% 94%;
+
+    --popover: 24 10% 11%;
+    --popover-foreground: 40 20% 94%;
+
+    --primary: 28 80% 55%;
+    --primary-foreground: 24 10% 8%;
+
+    --secondary: 24 8% 18%;
+    --secondary-foreground: 40 20% 94%;
+
+    --muted: 24 8% 16%;
+    --muted-foreground: 30 8% 62%;
+
+    --accent: 24 8% 20%;
+    --accent-foreground: 40 20% 94%;
+
+    --destructive: 0 62% 48%;
+    --destructive-foreground: 40 20% 94%;
+
+    --border: 24 8% 20%;
+    --input: 24 8% 22%;
+    --ring: 28 80% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+}
+
+@layer utilities {
+  .board-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: 1rem;
+  }
+
+  /* Faint ruled-paper texture behind the board — the "corkboard" cue. */
+  .board-surface {
+    background-image:
+      radial-gradient(hsl(var(--border)) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+}
