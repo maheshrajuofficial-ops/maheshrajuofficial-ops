@@ -5,6 +5,15 @@ advice — confirm every item against IRCC before you file or fly.*
 
 ---
 
+> **⚠️ Time-sensitive as of September 2026.** Two US-side changes dominate any
+> Canada trip taken from the United States on a nonimmigrant status:
+> third-country visa stamping in Canada effectively ended **6 Sep 2025**, and the
+> **duration-of-status → fixed-admission-period** rule takes effect
+> **15 Sep 2026**. See
+> [You are in the US on a nonimmigrant status](#you-are-in-the-us-on-a-nonimmigrant-status-f-1-optstem-opt-h-1b-l-1-o-1-tn).
+
+---
+
 ## First: Canada has no "B-1 visa"
 
 **B-1 is a United States classification.** Canada has no equivalent letter code
@@ -229,24 +238,136 @@ leave. Answer that consistently with your documents.
 
 ## Special cases
 
-### You are in the US on a work visa (H-1B, L-1, O-1, TN, E-3)
+### You are in the US on a nonimmigrant status (F-1 OPT/STEM OPT, H-1B, L-1, O-1, TN)
 
-Your US status does **not** determine your Canadian requirement — your
-**citizenship** does. An Indian national on an H-1B still needs a **TRV**.
+Your US status does **not** determine what Canada requires — your **citizenship**
+does. An Indian national on F-1 STEM OPT or H-1B still needs a **TRV**. There is
+no shortcut, and a valid US visa does not substitute (India is not a partial-eTA
+country).
 
-**Automatic visa revalidation (returning to the US).** If your US visa *stamp*
-has expired but your status is valid, you can normally re-enter the US from a
-trip of **30 days or less to Canada or Mexico only**, if you hold:
+The Canadian side of such a trip is usually the *easy* half. The hard half is
+getting back into the United States.
 
-- a valid, unexpired **I-797** approval notice
-- an unexpired **I-94**
-- a valid passport
+#### Canada is satisfied by US employment
 
-and you **did not apply for a new US visa while in Canada** — applying voids
-automatic revalidation and strands you until the new visa issues. Nationals of
-certain countries are excluded. Confirm your own eligibility with your
-immigration counsel or DSO before you travel; this is the classic way a
-three-day business trip becomes a three-week one.
+For the business visitor tests, "outside Canada" means outside Canada — US-based
+employment and US-source pay satisfy the remuneration and profit-accrual tests
+cleanly. Use your US employer's letter and a US pay stub as the proof.
+
+One caveat specific to nonimmigrants: IRCC also weighs whether you will *leave*
+Canada. Your tie is your US job and valid US status. If your US status is thin
+at the time you apply — EAD close to expiry, no valid US visa stamp, a pending
+change of status — that weakens the file, because an officer can reasonably ask
+whether you'd be able to return to the US at all. Apply while your US documents
+have runway.
+
+#### Practical friction: you surrender your passport
+
+After a TRV is approved, IRCC issues a passport request letter and you mail the
+passport to a VAC for the visa foil. **You will not have your passport for a
+stretch of weeks.** Plan for that: don't schedule other international travel, and
+don't let it collide with any US filing that needs the document.
+
+#### Automatic visa revalidation (AVR) — and why its safety margin is gone
+
+If your **US visa stamp has expired** but your status is valid, AVR normally lets
+you re-enter the US after a trip of **30 days or less to Canada or Mexico only**.
+
+For **F-1 students on OPT / STEM OPT**, AVR requires:
+
+- [ ] Valid, unexpired **passport**
+- [ ] Valid **EAD card** (the OPT or STEM OPT card)
+- [ ] **I-20 endorsed for travel by your DSO** — on OPT the travel signature is
+      valid **6 months**, not 12. Check the date
+- [ ] Unexpired **I-94**
+- [ ] Trip **≤ 30 days**, to **Canada only** — no third country, not even a
+      layover or a connecting flight through one
+- [ ] You did **not** apply for a US visa while in Canada
+- [ ] You are not a national of a designated state sponsor of terrorism
+      (India is not one)
+
+> ### ⚠️ The fallback closed on 6 September 2025
+>
+> AVR was historically low-risk because a failure was recoverable — you renewed
+> the stamp in Toronto or Montreal and came home.
+>
+> **That is no longer available.** Effective **6 September 2025**, the US State
+> Department requires nonimmigrant visa interviews in the applicant's **country
+> of nationality or residence**, ending routine third-country stamping in Canada
+> and Mexico. An Indian national refused AVR at the border can no longer simply
+> renew in Canada — the realistic path is flying to **India**, waiting for an
+> appointment, and hoping for no administrative processing.
+>
+> And note the trap: **applying for a US visa in Canada voids AVR.** Once you
+> apply, you cannot fall back on it. There is no second attempt.
+>
+> AVR is still low-*probability* of failure. It is now very high-*cost* of
+> failure. Those are different risks, and only the second one matters when you
+> have a job in the US.
+
+CBP discretion is also now explicit: as part of the September 2026 rulemaking,
+the admission language moved from "shall" to "**may**." Meeting every criterion
+has never guaranteed admission, and the regulation now says so.
+
+**If your F-1 stamp is still valid and covers your return date, none of the
+above applies to you** — travel on the stamp and this is an ordinary trip.
+
+#### ⚠️ Timing: the D/S rule takes effect 15 September 2026
+
+DHS's final rule replacing **duration of status (D/S)** with **fixed admission
+periods** for F, J and I nonimmigrants takes effect **15 September 2026**. Two
+consequences for anyone on OPT or STEM OPT:
+
+1. **Be physically inside the US on 15 September 2026.** Students in F-1 status
+   and present in the US on that date are grandfathered: status continues to the
+   later of the I-20 program end date or the **STEM OPT EAD expiry** (capped at
+   four years). A trip that straddles the date forfeits that treatment for no
+   reason.
+2. **Re-entry on or after 15 September 2026 is on a date-specific I-94**, not
+   D/S — a fixed admission period plus a short grace period, generally keyed to
+   your EAD end date. This matters later, not at the border: if you subsequently
+   file anything (an H-1B change of status, a further OPT action) and your I-94
+   expires while it is pending, filing the underlying petition alone no longer
+   protects your stay — you need **Form I-539** extension of stay alongside it.
+
+Transition relief exists for OPT/STEM OPT applications timely filed **on or
+before 18 March 2027** (no EOS required), but that covers *applying* for STEM
+OPT, not travel by someone already on it.
+
+Given a TRV takes weeks, travel before 15 September 2026 is unrealistic unless
+you already hold a valid Canadian visa. Plan on returning under the new regime.
+
+#### What to carry for US re-entry on STEM OPT
+
+- [ ] Passport valid 6+ months
+- [ ] F-1 visa stamp — or the AVR document set above
+- [ ] **STEM OPT EAD card**
+- [ ] **I-20 with a travel signature under 6 months old**, showing the STEM OPT
+      recommendation
+- [ ] **Employment verification letter** — employer name, E-Verify participation,
+      job title, start date, that the role relates to your degree
+- [ ] Recent **pay stubs**
+- [ ] Copy of your signed **Form I-983** training plan
+- [ ] Degree certificate / transcript
+- [ ] DSO contact details, including after-hours
+
+CBP can and does question OPT students about employment, since unemployment days
+count against status (90 days on post-completion OPT, 150 total with the STEM
+extension — travel does **not** pause the clock). Have the employment proof in
+hand, not in email.
+
+#### Before you book anything
+
+1. **Talk to your DSO first.** They issue the travel signature and will have a
+   current institutional position on travel risk — several international offices
+   now advise against relying on AVR at all.
+2. **If you have an employer immigration team, route it through them.** A large
+   employer will have a standing policy on OPT-holder travel and will pay for
+   counsel. Use it.
+3. **Ask whether the trip is actually necessary.** For a conference or an
+   internal meeting, remote attendance or sending a colleague with a US passport
+   costs nothing. Weigh that honestly against a scenario where you are in Toronto
+   with an expired stamp and no route home.
 
 ### US or Mexican citizens — CUSMA
 
@@ -279,6 +400,9 @@ question. Get counsel.
 | Documents in checked baggage | Hand luggage |
 | Activity is really work | Apply for a work permit |
 | Applying 3 weeks before the meeting | Start 3 months out |
+| On OPT, relying on AVR with an expired stamp | Understand the fallback closed Sep 2025 — talk to your DSO |
+| Travel signature over 6 months old | On OPT it's 6 months, not 12. Re-sign before you go |
+| Trip straddling 15 Sep 2026 | Be in the US on that date |
 
 ---
 
@@ -292,6 +416,14 @@ question. Get counsel.
 - IRCC — [Check processing times](https://www.canada.ca/en/immigration-refugees-citizenship/services/application/check-processing-times.html)
 - [IRPR s. 186(a)](https://laws-lois.justice.gc.ca/eng/regulations/SOR-2002-227/section-186.html) · [IRPR s. 187](https://laws-lois.justice.gc.ca/eng/regulations/SOR-2002-227/section-187.html)
 - [CUSMA Chapter 16 — Temporary Entry for Business Persons](https://www.international.gc.ca/trade-commerce/trade-agreements-accords-commerciaux/agr-acc/cusma-aceum/text-texte/16.aspx?lang=eng)
+
+**US side — if travelling from the United States on a nonimmigrant status:**
+
+- DHS Study in the States — [Final rule: fixed admission period + extension of stay FAQ](https://studyinthestates.dhs.gov/final-rule-establishing-a-fixed-time-period-of-admission-and-an-extension-of-stay-procedure-faq)
+- DHS Study in the States — [Quick facts on the final rule](https://studyinthestates.dhs.gov/final-rule-establishing-a-fixed-time-period-of-admission-and-an-extension-of-stay-procedure-quick)
+- ICE SEVP — [Travel](https://www.ice.gov/sevis/travel)
+- US State Department — [Visa appointment location policy (nationality or residence)](https://travel.state.gov/content/travel/en/us-visas.html)
+- **Your DSO** — the authoritative source for your own record, and the only one who can sign your I-20
 
 Fees, processing times, the partial-eTA country list, and officer instructions
 all change without notice. The country list and the March 2026 guidance in
