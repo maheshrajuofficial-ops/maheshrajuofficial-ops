@@ -267,7 +267,22 @@ against your own diagnosis and treatment before you tick a box.
    your own diagnosis was. It is the easiest thing on the form to miss.
 
 **Answer from the medical record, not from memory.** Pull the discharge summary
-and read the documented site. Up to 45% of extrapulmonary cases have a
+and read two things off it: the **documented anatomic site** and the **actual
+dates**. Recollection of "roughly when" is frequently a year out, and both the
+site and the two-year window turn on specifics.
+
+The site as documented is what governs, and it is narrower than "the chest." A
+**chest wall** abscess, a pleural effusion, or a mediastinal node is not lung
+parenchyma — a record headed *extrapulmonary* has already made that
+classification for you. Do not talk yourself into a broader answer than your own
+record supports.
+
+The strongest possible document here is a **public health department
+"completion of therapy" letter**, particularly one recording **Directly Observed
+Therapy (DOT)** — it evidences the diagnosis, the regimen, the completion date
+and adherence in a single page on government letterhead. If you were treated
+through a county or state TB program, request that letter; it outranks a private
+physician's note. Up to 45% of extrapulmonary cases have a
 concomitant pulmonary component, and some patients with a normal chest X-ray
 still had positive sputum cultures — so "it was extrapulmonary" as a recollection
 is not the same as a record that documents no lung involvement.
