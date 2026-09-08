@@ -256,8 +256,24 @@ IMM 5257's Background Information section asks:
 Note the two-year window and the words **"of the lungs."** Work out the dates
 against your own diagnosis and treatment before you tick a box.
 
-**If the answer is genuinely uncertain, tick yes and explain.** The asymmetry is
-severe:
+**The question has two independent limbs.** Read them separately:
+
+1. *Have you had tuberculosis **of the lungs*** — pulmonary disease specifically.
+   Purely extrapulmonary TB (lymph node, pleural, bone, abdominal) is not
+   tuberculosis of the lungs.
+2. *…**or been in close contact with a person with tuberculosis*** — a separate
+   question with no "of the lungs" qualifier. If you acquired TB from a known
+   household or workplace contact, this limb can be **yes** on its own, whatever
+   your own diagnosis was. It is the easiest thing on the form to miss.
+
+**Answer from the medical record, not from memory.** Pull the discharge summary
+and read the documented site. Up to 45% of extrapulmonary cases have a
+concomitant pulmonary component, and some patients with a normal chest X-ray
+still had positive sputum cultures — so "it was extrapulmonary" as a recollection
+is not the same as a record that documents no lung involvement.
+
+**If the record leaves it genuinely uncertain, tick yes and explain.** The
+asymmetry is severe:
 
 | You answer | If IRCC agrees | If IRCC disagrees |
 |---|---|---|
@@ -281,7 +297,18 @@ treatment is not that. In practice:
 | **Extrapulmonary TB** (lymph node, bone, etc.) | Generally not infectious, not a public-health danger |
 | **Latent TB infection (LTBI)** | Not TB disease. May attract *medical surveillance* — a condition to report to public health on arrival |
 
-The practical cost is **time, not refusal**. Chest X-ray abnormalities are the
+IRCC's screening is aimed squarely at transmissible disease. Canada's own TB
+standards state that the immigration medical examination focuses on detecting
+people with **active infectious (respiratory) TB** — *not* extrapulmonary TB or
+latent infection. Only active **pulmonary or laryngeal** TB must be treated
+before arrival. Isolated extrapulmonary disease is not person-to-person
+transmissible and is not a ground for refusal.
+
+(Where an IME does detect extrapulmonary TB, the usual consequence is a condition
+requiring provincial TB surveillance after arrival — an administrative follow-up,
+not a bar to entry, and largely moot on a short business trip.)
+
+For pulmonary history, the practical cost is **time, not refusal**. Chest X-ray abnormalities are the
 single most common cause of medical-exam delay, and a healed TB lesion leaves
 scarring that a radiologist will flag. Well-organised documentation is what turns
 that from an investigation into a footnote.
@@ -306,7 +333,8 @@ than weeks:
 - An IME is valid 12 months
 
 **Add 4–8 weeks to the calendar if a medical exam enters the picture** — the
-12-week plan becomes 16–20.
+12-week plan becomes 16–20. A documented, completed, purely extrapulmonary case
+on a short business visit will usually not get there at all.
 
 ---
 
