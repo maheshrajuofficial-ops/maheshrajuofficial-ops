@@ -43,6 +43,7 @@ work back from it:
 | **T − 9 wk** | Complete IMM 5257, upload everything, pay, submit |
 | **T − 8 wk** | Biometrics at a USCIS ASC (the instruction letter typically gives you 30 days) |
 | **T − 8 to −3 wk** | Processing. Watch the account for requests |
+| *+4 to +8 wk* | *Only if a medical exam is requested — see the medical section* |
 | **T − 3 wk** | Passport request letter → mail passport to the VAC |
 | **T − 1 wk** | Passport returned with the visa foil. **Now** book non-refundable travel |
 | **T − 0** | Travel, with the port-of-entry set in hand luggage |
@@ -239,6 +240,76 @@ and your **application number** — record it.
 
 ---
 
+## Medical exams and TB history
+
+Business visits under six months **normally require no immigration medical exam
+(IME)**. Two things can change that: the occupational/residency triggers, and
+your own answers on IMM 5257.
+
+### The form asks about tuberculosis directly
+
+IMM 5257's Background Information section asks:
+
+> *"Within the past two years, have you or a family member ever had tuberculosis
+> of the lungs or been in close contact with a person with tuberculosis?"*
+
+Note the two-year window and the words **"of the lungs."** Work out the dates
+against your own diagnosis and treatment before you tick a box.
+
+**If the answer is genuinely uncertain, tick yes and explain.** The asymmetry is
+severe:
+
+| You answer | If IRCC agrees | If IRCC disagrees |
+|---|---|---|
+| **Yes**, with documentation | Possible medical exam, some delay | — |
+| **No** | Nothing | **Misrepresentation under IRPA s. 40 — five-year ban** |
+
+A medical exam costs weeks. A misrepresentation finding costs five years and
+follows you into every future application. Never round a medical history down.
+
+### Treated TB is not inadmissibility
+
+Medical inadmissibility for danger to public health under
+[IRPA s. 38(1)(a)](https://laws-lois.justice.gc.ca/eng/acts/i-2.5/section-38.html)
+targets **active, infectious** disease. A completed, documented course of
+treatment is not that. In practice:
+
+| Situation | Typical outcome |
+|---|---|
+| **Active pulmonary TB, untreated** | Inadmissible until treated and non-infectious |
+| **Pulmonary TB, treatment completed, documented cure** | Admissible. Expect to prove it |
+| **Extrapulmonary TB** (lymph node, bone, etc.) | Generally not infectious, not a public-health danger |
+| **Latent TB infection (LTBI)** | Not TB disease. May attract *medical surveillance* — a condition to report to public health on arrival |
+
+The practical cost is **time, not refusal**. Chest X-ray abnormalities are the
+single most common cause of medical-exam delay, and a healed TB lesion leaves
+scarring that a radiologist will flag. Well-organised documentation is what turns
+that from an investigation into a footnote.
+
+### Assemble the medical dossier before you file
+
+Have these ready so that a request for information can be answered in days rather
+than weeks:
+
+- [ ] **Treating physician's letter** — diagnosis, site (pulmonary or extrapulmonary), drug regimen, start and completion dates, and an explicit statement that treatment was completed and you are **cured and non-infectious**
+- [ ] **Treatment records** — the regimen and adherence history
+- [ ] **Sputum culture results**, including conversion to negative, if pulmonary
+- [ ] **Chest X-ray reports** — at diagnosis and post-treatment, so the change is visible
+- [ ] **Certified English translations** of anything not already in English
+- [ ] Public health department clearance or discharge letter, if one was issued
+
+### If an exam is requested
+
+- It must be done by an **IRCC-designated panel physician** — your own doctor cannot do it
+- **Tell the panel physician about the TB history up front.** Withholding it is what causes delays, not the history itself
+- Results typically reach IRCC within about 30 days of the appointment
+- An IME is valid 12 months
+
+**Add 4–8 weeks to the calendar if a medical exam enters the picture** — the
+12-week plan becomes 16–20.
+
+---
+
 ## Phase 5 — Passport submission
 
 1. On approval, a **Passport Request letter (PPR)** appears in your account
@@ -409,6 +480,7 @@ Sincerely,
 | IMM 5257 submitted without barcodes | Desktop Adobe Reader, click **Validate** |
 | Biometrics window missed | Book the ASC appointment the day the BIL arrives |
 | Activity is really work | Apply for a work permit instead |
+| Medical history understated on the form | Answer accurately — misrepresentation is a 5-year ban |
 | Applied three weeks before the trip | 12 weeks |
 
 ---
