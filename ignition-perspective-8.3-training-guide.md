@@ -90,15 +90,16 @@ click a button, the click travels to the Gateway, the Gateway runs your script a
 properties, and the changed properties travel back down and the browser re-renders.
 
 ```
-   PLC / device                 Gateway (the server)                 Browser
-   ───────────                  ────────────────────                 ───────
-   [ PLC tags ] ──OPC UA──▶  ┌──────────────────────────┐
-                             │  Tag system (live values) │
-   [ SQL DB  ] ◀──JDBC────▶  │  Bindings & expressions   │  WebSocket  ┌──────────────┐
-                             │  Scripts (Jython)         │ ◀─────────▶ │  Session/Page │
-                             │  Alarms, history, audit   │   (props    │  renders DOM  │
-                             │  Perspective session state│    + events)└──────────────┘
-                             └──────────────────────────┘
+  PLC / device              Gateway (the server)                Browser
+  ────────────              ────────────────────                ───────
+
+  [ PLC tags ] ─OPC UA─▶  ┌──────────────────────────┐
+                          │ Tag system (live values) │
+  [ SQL DB  ] ◀──JDBC──▶  │ Bindings & expressions   │
+                          │ Scripts (Jython)         │ ◀──▶   ┌──────────────┐
+                          │ Alarms, history, audit   │  Web-  │ Session/Page │
+                          │ Session state            │ Socket │ renders DOM  │
+                          └──────────────────────────┘        └──────────────┘
 ```
 
 **Why this matters immediately:**
@@ -241,7 +242,7 @@ When you open a View, the Designer arranges itself like this:
 │  Scripting    │                                        │   CUSTOM            │
 │  ...          │                                        │                     │
 ├───────────────┴────────────────────────────────────────┤                     │
-│  Component Palette  /  Output Console  /  Tag Browser   │                     │
+│  Component Palette  /  Output Console  /  Tag Browser  │                     │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
