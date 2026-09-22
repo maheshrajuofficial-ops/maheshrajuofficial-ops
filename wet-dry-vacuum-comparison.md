@@ -28,7 +28,7 @@ The machines that *do* ship with sofa and mattress tools are either:
 | 6 | **Tineco iFLOOR 3** *(added)* | ₹14,999 per your list; **no Amazon.in listing found** | ~4.5 kg | 600 ml / 500 ml | **up to 78 dB** (Tineco spec), not ~74 dB | Not confirmed | Roller floor head + self-cleaning dock (per Tineco) | Well reviewed in the US; no India rating found | Yes, *if* your price holds | [Tineco India on Amazon.in](https://www.amazon.in/stores/TinecoIndia/page/033391A7-D4F5-4B32-A26E-88EF89B4FCCA) · [Tineco spec page](https://us.tineco.com/products/ifloor-3.html) |
 | 7 | **AGARO Royal Mop & Vacuum** *(added: this is AGARO's real wet-dry washer)* | 22,999 now; tracked low 17,990 | Not confirmed | Not confirmed | Not confirmed (brand says "quiet") | up to 38 min | Roller floor head + self-clean base | No rating found | No | [Amazon.in](https://www.amazon.in/AGARO-Royal-Multi-Type-Lightweight-Brushless/dp/B0CHSCJ6C8) · [Flipkart](https://www.flipkart.com/agaro-royal-mop-vacuum-cleaner-multi-surface-hard-floor-cordless/p/itm611243c8bf5a6) |
 
-**Effort notes that apply to all five:**
+**Effort notes that apply to all seven:**
 - **Self-propelled roller.** The machine pulls itself forward, so pushing takes little effort. It still weighs 4–4.7 kg if you have to *carry* it up stairs.
 - **Emptying water.** The dirty tank holds only 0.5–0.72 L. You lift it out by its handle and tip it into a sink, which is light work, not a heavy bucket. Machines that empty themselves into a station exist, but they cost well above this budget.
 - **Noise.** 68–78 dB is roughly the level of a normal vacuum. None of these is "quiet". The ILIFE W90 Pro (≤ 68 dB) and Dreame H12 Core (~72 dB) are the quietest here.
