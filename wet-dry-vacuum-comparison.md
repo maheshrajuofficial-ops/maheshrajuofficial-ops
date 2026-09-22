@@ -4,6 +4,29 @@
 
 ---
 
+## 0. Wet + dry + sofa/bed in one purchase (what you asked for)
+
+**No single machine does all three for ₹10–15k.** A floor washer whose handheld detaches for sofa and bed starts at about **₹33k**. The other route is two devices, which covers everything for about **₹22–30k**. In every option the sofa and bed cleaning is **dry vacuuming**; wet-washing fabric needs a separate spot cleaner (Section 5).
+
+### 0a. All-in-one combos: one machine, handheld detaches for sofa and bed
+
+| Model | Price (₹) | Weight | Clean / dirty tank | Noise | Sofa & bed attachments included | Warranty / service | Within ₹10–15k? | Link |
+|---|---|---|---|---|---|---|---|---|
+| **Tineco Floor ONE S5 Combo** | **32,999** (MRP 69,900) | Just under 4.5 kg | 500 ml / 450 ml | 78 dB | Detachable handheld vacuum + **mini power brush** (mattress, sofa), **2-in-1 dusting brush**, **crevice tool** (sofa seams, window sills); also spare roller, cleaning solution, charging base, accessory tray | Tineco doorstep service, 90+ offices in India | No (~2×) | [Amazon.in](https://www.amazon.in/Tineco-S5-Combo-Cordless-Automatic/dp/B0B8SHRZ4C) · [Tineco India](https://tinecoindia.in/floor-one-s5-combo) |
+| **Dreame H12 Dual FlexReach** (India launch, Sept 2026) | **44,999** | ~5 kg (review) | Not published for this model | Not published (sister model H12 Pro FlexReach peaks at 78 dB) | "6-in-1": floor-wash head, dry-vacuum head, extended crevice nozzle, **small brush with shield for cushions, mattresses, soft furniture**; 180° lie-flat; removable battery, up to 50 min washing / 60 min vacuuming | 1 yr; Dreame service in 160+ cities | No (~3×) | [Launch details](https://www.gizbot.com/gadgets/news/dreame-h12-dual-flexreach-wet-dry-vacuum-cleaner-launched-india-price-specifications-features-128239.html) · [Dreame India](https://in.dreametech.com/) · [Dreame H12 Dual on Amazon.in](https://www.amazon.in/stores/page/EEC581CD-A173-4504-A282-FA8A96C86AA3) |
+
+### 0b. Two-device sets: same coverage, lower total
+
+| Set | Floor washer (wet + dry tiles) | Sofa / bed / sills (dry) | Approx. total (₹) | Links |
+|---|---|---|---|---|
+| **Best value** | Dreame H12 Core (₹14,999 on Flipkart) | AGARO Supreme: motorised mattress brush, crevice, 2-in-1 brush | ~22–30k | [H12 Core (Flipkart)](https://www.flipkart.com/dreame-h12-core-hand-held-vacuum-cleaner/p/itmcd39ae1eed036?pid=VCLH3BC28NG9XDDX) · [AGARO Supreme (Amazon.in)](https://www.amazon.in/AGARO-Supreme-Brushless-Adjustable-Vacumming/dp/B0BCGCPL8Z) |
+| **Cheapest** | ILIFE W90 (~₹13,900) | AGARO Grand bed vacuum (UV, mite remover) | ~17–19k | [ILIFE W90](https://www.amazon.in/ILIFE-W90-Vacuum-Cleaner-Multi-Surface/dp/B0BRKFMTJK) · [AGARO Grand](https://www.amazon.in/AGARO-Grand-Technology-Collection-Sterilization/dp/B0C7W8R7CP) |
+| **Best-rated floor unit** | Tineco i5 Stretch Plus 2 (₹18,999–24,999) | AGARO Supreme | ~27–40k | [Tineco i5](https://www.amazon.in/Tineco-Cordless-Patented-Self-Cleaning-Warranty/dp/B0F3GYMWG5) · [AGARO Supreme](https://www.amazon.in/AGARO-Supreme-Brushless-Adjustable-Vacumming/dp/B0BCGCPL8Z) |
+
+**Effort compared.** A combo means one charger and one machine, but for the sofa she lifts its handheld module off the stick. A two-device set means two chargers, but the sofa tool is a lighter stick vacuum. Neither option needs a heavy tank lifted or poured.
+
+---
+
 ## 1. The key finding: no one machine meets all 25 criteria
 
 Every standing cordless wet-dry machine sold in India (Dreame H-series, Tineco Floor One, ILIFE W90, AGARO Royal Mop) is a **hard-floor washer**. It has a single roller head and **no sofa or mattress nozzle**. It cannot clean upholstery or beds, whether wet or dry.
