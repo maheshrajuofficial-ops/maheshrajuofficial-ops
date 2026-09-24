@@ -1,51 +1,33 @@
-# Washer Tray Quantity Entry: toggle and part number fix
+# Washer Tray Quantity Entry: changes in round 2
 
-## What was wrong
+This file lists only what changed since the last version. Controls and properties not listed here stay as they were.
 
-**1. The toggle flipped by itself.**
-`togg_not_in_list.Default` is `ThisItem.NotInList`, and three controls wrote to `NotInList`:
+## Summary
 
-- the toggle (`OnCheck` / `OnUncheck`)
-- `cmbx_part_num.OnChange` (set it to `false`)
-- `txt_part_number.OnChange` (set it to `true`)
+| # | Change | Where |
+|---|--------|-------|
+| 1 | Fixed the `Invalid argument type (Boolean). Expecting a Table value` error | Submit `OnSelect` |
+| 2 | `Date` now holds the date and time as ISO 8601 UTC text. Nothing is written to `Time` | `txt_tray_qty.OnChange`, Submit `OnSelect` |
+| 3 | Removed `SubmissionTime` from the collection | Every `ClearCollect` / `Collect` |
+| 4 | `COST_CENTER` is read with `First()` and written to the entry list | Submit `OnSelect` |
+| 5 | New `lbl_part_description` label | `lbl_part_description.Text` |
 
-When the toggle cleared `PartNumber`, `cmbx_part_num.DefaultSelectedItems` changed. A ComboBox fires `OnChange` when its default selection changes, even while it is hidden. That wrote `NotInList: false`, the toggle's `Default` changed, `OnUncheck` fired, and so on. This was the loop.
+### Why the error happened
+In `IfError(value, fallback)`, the value and the fallback must return the same type. The value ended with `ClearCollect(...)`, which returns a **table**. The fallback was `Notify(...)`, which returns a **Boolean**. Now the value ends with `true` and the fallback ends with `false`, so both return a Boolean. The result goes to an `If` that runs the success steps.
 
-**2. The part number was erased.**
-Every time the loop ran, `OnCheck` / `OnUncheck` wrote `PartNumber: ""`. Any row refresh (for example, the new row that `txt_tray_qty` adds) could start the loop again and wipe the value you had entered.
+### Date format
+`Text(Now(), DateTimeFormat.UTC)` writes text like `2026-09-24T14:05:32.123Z`. This is ISO 8601 in UTC:
+- **Power BI** reads the text column as Date/Time with no custom parsing. Convert it to local time in the model if you need to.
+- **Power Automate** can use it directly in `formatDateTime()`, `convertFromUtc()` and date comparisons.
 
-## How it's fixed
-
-- **Each input stores its own value.** `ListPartNumber` holds the value from `cmbx_part_num` and `ManualPartNumber` holds the value from `txt_part_number`. Neither control resets the other. The hidden one keeps its value, which does no harm.
-- **Only the toggle writes `NotInList`.** The ComboBox and the text box no longer touch it.
-- **The toggle doesn't clear anything.** It uses `OnChange` with a guard, `Self.Value <> ThisItem.NotInList`. When its `Default` refreshes from the collection, the values already match, so nothing is written and the loop can't start. `OnCheck` and `OnUncheck` are cleared.
-- **Every write is guarded.** Each `UpdateIf` runs only if the value actually changed, so a gallery refresh or a default re-evaluation can't overwrite data.
-- **The if/else is applied when the row is used.** Validation and the Submit `Patch` both pick the part number with `If(NotInList, ManualPartNumber, ListPartNumber)`.
-
-> Collection schema change: the `PartNumber` column is replaced by `ListPartNumber` and `ManualPartNumber`. Every `ClearCollect` / `Collect` below uses the new schema, so update all of them together.
+> **Assumption:** the destination column for the cost center is named `Cost_Center` in `'Washer Tray Quantity Entry'`. Change the name in the Submit code if yours is different. If `COST_CENTER` is a number and `Cost_Center` is text, wrap the value in `Text(...)`.
+>
+> **Assumption:** the machine number in `'Washer Parts List M4348'` is stored in `Title`, as in the existing machine ComboBox. If you filter on a separate `MACHINE_NUMBER` column, use it instead of `Title` below.
 
 ---
 
-## 1. cmbx_machine_selection
-
-**SelectMultiple**
-```
-false
-```
-
-**Items** (unchanged)
-```
-Sort(
-    Distinct(
-        'Washer Parts List M4348',
-        Title
-    ),
-    Value,
-    SortOrder.Ascending
-)
-```
-
-**OnChange**
+## 1. cmbx_machine_selection.OnChange
+`SubmissionTime` is removed.
 ```
 ClearCollect(
     col_washer_part_qty,
@@ -56,198 +38,37 @@ ClearCollect(
         ManualPartNumber: "",
         TrayQuantity: 0,
         NotInList: false,
-        SubmissionDate: "",
-        SubmissionTime: ""
+        SubmissionDate: ""
     }
 )
 ```
 
 ---
 
-## 2. gal_washer_parts
+## 2. lbl_part_description (new)
 
-**Items** (unchanged)
-```
-col_washer_part_qty
-```
-
-**Visible** (unchanged)
-```
-!IsBlank(cmbx_machine_selection.Selected.Value)
-```
-
----
-
-## 3. lbl_mach_num
-
-**Text** (unchanged)
-```
-ThisItem.MachineNumber
-```
-
----
-
-## 4. togg_not_in_list
-
-**Default**
-```
-ThisItem.NotInList
-```
-
-**OnChange** (new: the only place `NotInList` is written; it never clears the part number)
+**Text**
 ```
 If(
-    Self.Value <> ThisItem.NotInList,
-    UpdateIf(
-        col_washer_part_qty,
-        RowID = ThisItem.RowID,
-        { NotInList: Self.Value }
+    ThisItem.NotInList || IsBlank(ThisItem.ListPartNumber),
+    "",
+    LookUp(
+        'Washer Parts List M4348',
+        Title = ThisItem.MachineNumber && PART_NUMBER = ThisItem.ListPartNumber,
+        PART_DESCRIPTION
     )
 )
 ```
 
-**OnCheck** (clear it)
-```
-false
-```
-
-**OnUncheck** (clear it)
-```
-false
-```
-
----
-
-## 5. cmbx_part_num
-
-**SelectMultiple**
-```
-false
-```
-
-**IsSearchable**
-```
-true
-```
-
-**Visible**
+**Visible** (optional: hides the label while typing a manual part number)
 ```
 !ThisItem.NotInList
 ```
 
-**Items** (unchanged)
-```
-Sort(
-    Distinct(
-        Filter(
-            'Washer Parts List M4348',
-            Title = ThisItem.MachineNumber
-        ),
-        PART_NUMBER
-    ),
-    Value,
-    SortOrder.Ascending
-)
-```
-
-**DisplayFields**
-```
-["Value"]
-```
-
-**SearchFields**
-```
-["Value"]
-```
-
-**DefaultSelectedItems** (depends only on its own field, not on the toggle)
-```
-If(
-    IsBlank(ThisItem.ListPartNumber),
-    Blank(),
-    Table({ Value: ThisItem.ListPartNumber })
-)
-```
-
-**OnChange** (no `NotInList` write; ignored while hidden; writes only when the value changed)
-```
-With(
-    { selectedPart: If(IsBlank(Self.Selected.Value), "", Text(Self.Selected.Value)) },
-    If(
-        !ThisItem.NotInList && selectedPart <> ThisItem.ListPartNumber,
-        UpdateIf(
-            col_washer_part_qty,
-            RowID = ThisItem.RowID,
-            { ListPartNumber: selectedPart }
-        )
-    )
-)
-```
-
 ---
 
-## 6. txt_part_number
-
-**Visible**
-```
-ThisItem.NotInList
-```
-
-**Default**
-```
-ThisItem.ManualPartNumber
-```
-
-**Format**
-```
-TextFormat.Text
-```
-
-**DelayOutput**
-```
-true
-```
-
-**HintText**
-```
-"Enter part number"
-```
-
-**OnChange** (no `NotInList` write; writes only when the value changed)
-```
-With(
-    { manualPartNumber: Upper(Trim(Self.Text)) },
-    If(
-        manualPartNumber <> ThisItem.ManualPartNumber,
-        UpdateIf(
-            col_washer_part_qty,
-            RowID = ThisItem.RowID,
-            { ManualPartNumber: manualPartNumber }
-        )
-    )
-)
-```
-
----
-
-## 7. txt_tray_qty
-
-**Format**
-```
-TextFormat.Number
-```
-
-**Default** (unchanged)
-```
-If(ThisItem.TrayQuantity = 0, Blank(), ThisItem.TrayQuantity)
-```
-
-**HintText**
-```
-"Tray quantity"
-```
-
-**OnChange** (picks the active part number with if/else and doesn't touch the part number fields)
+## 3. txt_tray_qty.OnChange
+The value is now an ISO 8601 UTC date and time, and the time variable is removed.
 ```
 With(
     {
@@ -257,8 +78,7 @@ With(
             ThisItem.ManualPartNumber,
             ThisItem.ListPartNumber
         ),
-        enteredSubmissionDate: Text(Now(), "[$-en-US]mm-dd-yyyy"),
-        enteredSubmissionTime: Text(Now(), "[$-en-US]hh:mm AM/PM")
+        enteredSubmissionDate: Text(Now(), DateTimeFormat.UTC)
     },
     If(
         IsBlank(Self.Text) || !IsNumeric(Self.Text) || enteredQuantity <= 0,
@@ -281,8 +101,7 @@ With(
             RowID = ThisItem.RowID,
             {
                 TrayQuantity: enteredQuantity,
-                SubmissionDate: enteredSubmissionDate,
-                SubmissionTime: enteredSubmissionTime
+                SubmissionDate: enteredSubmissionDate
             }
         );
         If(
@@ -296,8 +115,7 @@ With(
                     ManualPartNumber: "",
                     TrayQuantity: 0,
                     NotInList: false,
-                    SubmissionDate: "",
-                    SubmissionTime: ""
+                    SubmissionDate: ""
                 }
             )
         )
@@ -307,9 +125,8 @@ With(
 
 ---
 
-## 8. Submit button
-
-**OnSelect** (the if/else picks which part number field to patch)
+## 4. Submit button.OnSelect
+This fixes the IfError type error, writes the date and time to `Date`, stops writing `Time`, and adds `Cost_Center`.
 ```
 With(
     {
@@ -317,7 +134,13 @@ With(
             col_washer_part_qty,
             !IsBlank(Trim(If(NotInList, ManualPartNumber, ListPartNumber))) &&
             TrayQuantity > 0
-        )
+        ),
+        machineCostCenter: First(
+            Filter(
+                'Washer Parts List M4348',
+                Title = cmbx_machine_selection.Selected.Value
+            )
+        ).COST_CENTER
     },
     If(
         CountRows(rowsToSubmit) = 0,
@@ -337,36 +160,37 @@ With(
                             qtyRow.ListPartNumber
                         ),
                         Tray_Quantity: qtyRow.TrayQuantity,
-                        Date: qtyRow.SubmissionDate,
-                        Time: qtyRow.SubmissionTime
+                        Cost_Center: machineCostCenter,
+                        Date: qtyRow.SubmissionDate
                     }
                 )
             );
-            Notify("Tray quantities submitted successfully.", NotificationType.Success);
-            ClearCollect(
-                col_washer_part_qty,
-                {
-                    RowID: GUID(),
-                    MachineNumber: Text(cmbx_machine_selection.Selected.Value),
-                    ListPartNumber: "",
-                    ManualPartNumber: "",
-                    TrayQuantity: 0,
-                    NotInList: false,
-                    SubmissionDate: "",
-                    SubmissionTime: ""
-                }
-            ),
-            Notify("One or more records could not be submitted.", NotificationType.Error)
+            true,
+            Notify("One or more records could not be submitted.", NotificationType.Error);
+            false
+        ),
+        Notify("Tray quantities submitted successfully.", NotificationType.Success);
+        ClearCollect(
+            col_washer_part_qty,
+            {
+                RowID: GUID(),
+                MachineNumber: Text(cmbx_machine_selection.Selected.Value),
+                ListPartNumber: "",
+                ManualPartNumber: "",
+                TrayQuantity: 0,
+                NotInList: false,
+                SubmissionDate: ""
+            }
         )
     )
 )
 ```
+Here `If(cond1, r1, cond2, r2)` works like this: if there are no rows, it shows the "enter at least one" message. Otherwise, if `IfError` returned `true`, meaning every Patch succeeded, it shows the success message and resets the rows. If a Patch failed, the error message was already shown and the rows stay, so the user can try again.
 
 ---
 
-## 9. btn_reset
-
-**OnSelect**
+## 5. btn_reset.OnSelect
+`SubmissionTime` is removed.
 ```
 ClearCollect(
     col_washer_part_qty,
@@ -377,17 +201,14 @@ ClearCollect(
         ManualPartNumber: "",
         TrayQuantity: 0,
         NotInList: false,
-        SubmissionDate: "",
-        SubmissionTime: ""
+        SubmissionDate: ""
     }
 )
 ```
 
 ---
 
-## Checklist after pasting
-
-1. Clear `togg_not_in_list.OnCheck` and `OnUncheck` (set them to `false`) and put the logic in `OnChange`.
-2. Replace every `ClearCollect` / `Collect` of `col_washer_part_qty` (machine ComboBox, tray qty, Submit, Reset) so the collection schema stays consistent.
-3. Search the app for any other reference to `ThisItem.PartNumber` or `col_washer_part_qty.PartNumber` and switch it to the new fields.
-4. Test: pick a part, turn the toggle on, type a manual part, turn it off, enter a qty. The toggle should stay where you put it and both part number values should be kept. The one saved is the one the toggle shows.
+## Checklist
+1. Paste all five blocks. All four `ClearCollect` / `Collect` records must match, otherwise Power Apps reports a schema mismatch on `col_washer_part_qty`.
+2. Check that `Cost_Center` exists in `'Washer Tray Quantity Entry'` and that its type matches `COST_CENTER`.
+3. If Power Apps still shows the removed `Time` column, refresh the `'Washer Tray Quantity Entry'` data source (Data pane → ⋯ → Refresh).
