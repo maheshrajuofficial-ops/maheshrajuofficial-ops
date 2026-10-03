@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RRB Free Mock Tests</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Mukta:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: railway-signage header strip; home = exam "departure board" cards; test = CBT console (question + palette rail) */
+:root {
+  --bg: #F1F4F8; --surface: #FFFFFF; --fg: #152231; --muted: #586579; --line: #D6DDE7;
+  --accent: #1C4F8C; --accent-ink: #FFFFFF; --accent-soft: #E3ECF7; --signal: #C98A00;
+  --ok: #1E8A4C; --bad: #C23B32; --review: #6B46C1; --nv: #E4E9F0;
+  --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "Mukta", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E151F; --surface: #17202C; --fg: #E4EAF2; --muted: #9AA7B8; --line: #2A3647;
+  --accent: #6EA2E6; --accent-ink: #0E151F; --accent-soft: #1D2B3E; --signal: #F0B429;
+  --ok: #3DBA70; --bad: #EC6A60; --review: #A88BF0; --nv: #263243; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0E151F; --surface: #17202C; --fg: #E4EAF2; --muted: #9AA7B8; --line: #2A3647;
+  --accent: #6EA2E6; --accent-ink: #0E151F; --accent-soft: #1D2B3E; --signal: #F0B429;
+  --ok: #3DBA70; --bad: #EC6A60; --review: #A88BF0; --nv: #263243; color-scheme: dark }
+
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+html, body { margin: 0 }
+body { background: var(--bg); color: var(--fg); font: 16px/1.55 var(--body); }
+button { font: inherit; color: inherit; cursor: pointer }
+button:focus-visible, input:focus-visible + span, a:focus-visible { outline: 3px solid var(--signal); outline-offset: 2px }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.1 }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 16px }
+
+.topbar { background: var(--accent); color: var(--accent-ink); position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20 }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; flex-wrap: wrap }
+.brand { font-family: var(--display); font-weight: 700; font-size: 1.45rem; letter-spacing: .02em; display: flex; align-items: center; gap: 10px }
+.brand .plate { background: var(--signal); color: #1A1300; font-size: .85rem; padding: 2px 8px; border-radius: 3px; letter-spacing: .08em }
+.timer { font-family: var(--mono); font-size: 1.15rem; background: rgba(0,0,0,.18); padding: 4px 12px; border-radius: 4px; font-variant-numeric: tabular-nums }
+.timer.warn { background: var(--bad); color: #fff }
+.topbar .exam-name { font-family: var(--display); font-size: 1.2rem; font-weight: 600 }
+
+/* Home */
+.home { padding-block: 32px 48px; display: grid; gap: 36px }
+.lede h1 { font-size: clamp(2.2rem, 6vw, 3.4rem); font-weight: 700 }
+.lede p { max-width: 62ch; color: var(--muted); margin: 10px 0 0 }
+.eyebrow { font-family: var(--display); text-transform: uppercase; letter-spacing: .12em; font-size: .9rem; color: var(--signal); font-weight: 700 }
+.board { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px }
+.exam { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 20px; display: grid; gap: 14px; align-content: start }
+.exam h2 { font-size: 1.7rem }
+.exam .meta { display: flex; gap: 18px; font-family: var(--mono); font-size: .9rem; color: var(--muted); flex-wrap: wrap }
+.exam .meta b { color: var(--fg); font-weight: 500 }
+.route { display: flex; flex-wrap: wrap; gap: 6px }
+.chip { font-size: .85rem; padding: 2px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--fg); font-variant-numeric: tabular-nums }
+.btn { border: 0; border-radius: 4px; padding: 10px 18px; font-weight: 600; background: var(--accent); color: var(--accent-ink) }
+.btn:hover { filter: brightness(1.08) }
+.btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--fg) }
+.btn.ok { background: var(--ok); color: #fff }
+.btn.review { background: var(--review); color: #fff }
+.btn.small { padding: 6px 12px; font-size: .9rem }
+.sectional { display: grid; gap: 12px }
+.sectional .row { display: flex; flex-wrap: wrap; gap: 10px }
+.notes { color: var(--muted); font-size: .92rem; max-width: 70ch; display: grid; gap: 6px }
+.history table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .95rem }
+.history th, .history td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line) }
+.history th { font-family: var(--display); letter-spacing: .06em; text-transform: uppercase; font-size: .85rem; color: var(--muted) }
+.scroll-x { overflow-x: auto }
+
+/* Instructions */
+.instr { padding-block: 28px 48px; display: grid; gap: 18px; max-width: 760px }
+.instr ol { margin: 0; padding-left: 1.3em; display: grid; gap: 6px }
+.legend { display: flex; flex-wrap: wrap; gap: 12px 18px; font-size: .9rem }
+.legend span { display: inline-flex; align-items: center; gap: 6px }
+.actions { display: flex; flex-wrap: wrap; gap: 10px }
+
+/* Test console */
+.console { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; padding-block: 16px 40px }
+.secbar { grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap }
+.secbar button { border: 1px solid var(--line); background: var(--surface); padding: 6px 12px; border-radius: 4px; font-size: .92rem }
+.secbar button[aria-current="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+.qpanel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 20px; display: grid; gap: 16px; align-content: start; min-width: 0 }
+.qhead { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; color: var(--muted); font-size: .92rem; border-bottom: 1px solid var(--line); padding-bottom: 10px }
+.qhead b { color: var(--fg); font-family: var(--display); font-size: 1.15rem; letter-spacing: .02em }
+.marks { font-family: var(--mono); font-size: .82rem }
+.qtext { font-size: 1.12rem; overflow-wrap: anywhere }
+.opts { display: grid; gap: 10px }
+.opt { display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--line); border-radius: 5px; padding: 10px 14px; cursor: pointer }
+.opt:hover { border-color: var(--accent) }
+.opt input { margin-top: 6px; accent-color: var(--accent) }
+.opt.sel { border-color: var(--accent); background: var(--accent-soft) }
+.opt .k { font-family: var(--mono); color: var(--muted) }
+.qactions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 14px }
+.qactions .grp { display: flex; flex-wrap: wrap; gap: 10px }
+.rail { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; display: grid; gap: 14px; align-content: start; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 70px); max-height: calc(100vh - 90px); overflow: auto }
+.rail h3 { font-size: 1.05rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted) }
+.pal { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 6px }
+.pn { height: 36px; border-radius: 4px; border: 1px solid transparent; font-family: var(--mono); font-size: .85rem; font-variant-numeric: tabular-nums; position: relative }
+.st-nv { background: var(--nv); color: var(--fg) }
+.st-na { background: var(--bad); color: #fff }
+.st-a { background: var(--ok); color: #fff }
+.st-m { background: var(--review); color: #fff; border-radius: 50% }
+.st-am { background: var(--review); color: #fff; border-radius: 50% }
+.st-am::after { content: ""; position: absolute; right: 2px; bottom: 2px; width: 9px; height: 9px; border-radius: 50%; background: var(--ok); border: 2px solid var(--surface) }
+.pn.cur { outline: 3px solid var(--signal); outline-offset: 1px }
+.dot { width: 16px; height: 16px; border-radius: 3px; display: inline-block; position: relative }
+.dot.st-m, .dot.st-am { border-radius: 50% }
+.dot.st-am::after { width: 7px; height: 7px; right: -2px; bottom: -2px }
+.palette-toggle { display: none }
+
+/* Modal */
+.modal { position: fixed; inset: 0; background: rgba(8, 14, 22, .55); display: grid; place-items: center; padding: 16px; z-index: 50 }
+.dialog { background: var(--surface); border-radius: 8px; padding: 22px; max-width: 460px; width: 100%; display: grid; gap: 14px; border: 1px solid var(--line) }
+.dialog table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums }
+.dialog td { padding: 4px 0; border-bottom: 1px solid var(--line) }
+.dialog td:last-child { text-align: right; font-family: var(--mono) }
+
+/* Result */
+.result { padding-block: 28px 48px; display: grid; gap: 26px }
+.scorecard { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px }
+.tile .v { font-family: var(--display); font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums }
+.tile .l { font-size: .85rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em }
+.tile.main { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+.tile.main .l { color: inherit; opacity: .85 }
+.sectbl { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; background: var(--surface); border: 1px solid var(--line); border-radius: 6px }
+.sectbl th, .sectbl td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap }
+.sectbl th:first-child, .sectbl td:first-child { text-align: left }
+.sectbl th { font-family: var(--display); letter-spacing: .06em; text-transform: uppercase; font-size: .85rem; color: var(--muted) }
+.bar { height: 6px; background: var(--nv); border-radius: 3px; overflow: hidden; min-width: 80px }
+.bar i { display: block; height: 100%; background: var(--ok) }
+.filters { display: flex; gap: 6px; flex-wrap: wrap }
+.filters button { border: 1px solid var(--line); background: var(--surface); padding: 5px 12px; border-radius: 999px; font-size: .9rem }
+.filters button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg) }
+.rv { background: var(--surface); border: 1px solid var(--line); border-left-width: 4px; border-radius: 6px; padding: 14px 16px; display: grid; gap: 8px; min-width: 0 }
+.rv.c { border-left-color: var(--ok) } .rv.w { border-left-color: var(--bad) } .rv.u { border-left-color: var(--line) }
+.rv .h { display: flex; justify-content: space-between; gap: 8px; font-size: .88rem; color: var(--muted); flex-wrap: wrap }
+.rv ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px }
+.rv li { padding: 4px 10px; border-radius: 4px; overflow-wrap: anywhere }
+.rv li.right { background: color-mix(in srgb, var(--ok) 16%, transparent); font-weight: 600 }
+.rv li.picked { background: color-mix(in srgb, var(--bad) 16%, transparent) }
+.rv .exp { font-size: .95rem; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 8px }
+.rvlist { display: grid; gap: 10px }
+.tag { font-family: var(--mono); font-size: .8rem; padding: 1px 8px; border-radius: 3px }
+.tag.c { background: var(--ok); color: #fff } .tag.w { background: var(--bad); color: #fff } .tag.u { background: var(--nv); color: var(--fg) }
+
+@media (max-width: 860px) {
+  .console { grid-template-columns: minmax(0, 1fr) }
+  .rail { position: fixed; inset: auto 0 0 0; top: auto; max-height: 65vh; border-radius: 12px 12px 0 0; z-index: 40; padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 30px rgba(0,0,0,.25) }
+  .rail:not(.open) { display: none }
+  .palette-toggle { display: inline-block }
+}
+@media (prefers-reduced-motion: no-preference) { .btn, .opt, .pn { transition: filter .15s, border-color .15s, background .15s } }
+</style>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><span class="plate">RRB</span> <span id="topTitle">Free Mock Tests</span></div>
+    <div id="topRight"></div>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<div class="modal" id="modal" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h2 id="modalTitle">Submit test?</h2>
+    <div id="modalBody"></div>
+    <div class="actions" id="modalActions"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- utilities ---------- */
+const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const rs = n => '₹' + n.toLocaleString('en-IN');
+const ord = n => { const s = n % 100; if (s >= 11 && s <= 13) return n + 'th'; return n + ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th'); };
+const L = p => String.fromCharCode(64 + p);
+const NAMES = ['Ravi', 'Priya', 'Arjun', 'Meena', 'Suresh', 'Kavita', 'Imran', 'Anjali'];
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+/* An item is {q, opts:[...], ans:'correct option text', exp}. opts[0] is the answer until finalize() shuffles. */
+function mcq(q, ans, wrong, exp) {
+  const a = String(ans), opts = [a];
+  for (const w of wrong) { const s = String(w); if (s && !opts.includes(s) && opts.length < 4) opts.push(s); }
+  return { q, opts, ans: a, exp };
+}
+function numQ(q, ans, cands, exp, fmt = String) {
+  const seen = new Set([fmt(ans)]), out = [];
+  const add = c => { if (out.length < 3 && c > 0 && Number.isFinite(c) && !seen.has(fmt(c))) { seen.add(fmt(c)); out.push(fmt(c)); } };
+  cands.forEach(add);
+  for (let k = 1; out.length < 3; k++) { add(ans + k); add(ans - k); }
+  return { q, opts: [fmt(ans), ...out], ans: fmt(ans), exp };
+}
+function finalize(it) { const opts = shuffle(it.opts); return { q: it.q, opts, a: opts.indexOf(it.ans), exp: it.exp }; }
+
+/* ---------- Mathematics (generated, so every mock is fresh) ---------- */
+const TRAINS = [[36, 10], [54, 15], [72, 20], [90, 25], [108, 30]];
+const MATH = [
+  () => { let p, y; do { p = pick([5, 10, 12, 15, 20, 25, 30, 35, 40, 45, 60, 75]); y = R(6, 90) * 20; } while ((p * y) % 100);
+    const a = p * y / 100;
+    return numQ(`What is ${p}% of ${y}?`, a, [a + p, a - p, a + 10, a * 2], `${p}% of ${y} = ${p}/100 × ${y} = ${a}.`); },
+  () => { const P = R(4, 40) * 500, r = R(3, 12), t = R(2, 6), si = P * r * t / 100, yr = P * r / 100;
+    return numQ(`Find the simple interest on ${rs(P)} at ${r}% per annum for ${t} years.`, si, [si + yr, si - yr, P + si, si + 100 * r],
+      `SI = P × R × T / 100 = ${P} × ${r} × ${t} / 100 = ${rs(si)}.`, rs); },
+  () => { const r = pick([5, 10, 20]), P = R(5, 50) * 400, amt = P * (100 + r) * (100 + r) / 10000, ci = amt - P, si = P * r * 2 / 100;
+    return numQ(`What is the compound interest on ${rs(P)} for 2 years at ${r}% per annum, compounded annually?`, ci, [si, ci + P * r / 100, amt, ci - 10 * r],
+      `Amount = ${P} × (1 + ${r}/100)² = ${rs(amt)}. CI = ${rs(amt)} − ${rs(P)} = ${rs(ci)}.`, rs); },
+  () => { const cp = R(10, 90) * 20, p = pick([10, 15, 20, 25, 30, 40, 50]), loss = Math.random() < .4, f = loss ? 100 - p : 100 + p, sp = cp * f / 100;
+    return numQ(`An article is bought for ${rs(cp)} and sold at a ${loss ? 'loss' : 'profit'} of ${p}%. What is the selling price?`, sp,
+      [cp * (loss ? 100 + p : 100 - p) / 100, sp + cp / 10, sp - 20, cp + p], `SP = CP × ${f}/100 = ${cp} × ${f}/100 = ${rs(sp)}.`, rs); },
+  () => { const [kmh, ms] = pick(TRAINS), t = R(6, 24), len = ms * t;
+    return numQ(`A train ${len} m long is running at ${kmh} km/h. In how many seconds will it pass a signal post?`, t, [t + 2, t - 2, t * 2, t + 5],
+      `Speed = ${kmh} × 5/18 = ${ms} m/s. Time = ${len} ÷ ${ms} = ${t} seconds.`, n => n + ' s'); },
+  () => { const [kmh, ms] = pick(TRAINS), t = R(20, 45), total = ms * t, len = 10 * R(10, Math.floor(total / 20)), plat = total - len;
+    return numQ(`A ${len} m long train running at ${kmh} km/h crosses a platform in ${t} seconds. What is the length of the platform?`, plat,
+      [total, plat - 10, plat + 20, len], `Distance covered = ${ms} m/s × ${t} s = ${total} m = train + platform. Platform = ${total} − ${len} = ${plat} m.`, n => n + ' m'); },
+  () => { const [a, b] = pick([[12, 24], [10, 15], [20, 30], [6, 12], [15, 30], [18, 36], [12, 36], [20, 60], [24, 48], [4, 12], [30, 60], [9, 18]]), d = a * b / (a + b);
+    return numQ(`A can complete a piece of work in ${a} days and B can complete it in ${b} days. Working together, in how many days will they complete it?`, d,
+      [(a + b) / 2, d + 2, d - 1, b - a], `Together they do 1/${a} + 1/${b} = ${a + b}/${a * b} of the work per day, so time = ${a * b}/${a + b} = ${d} days.`, n => n + ' days'); },
+  () => { let A, B, N; do { A = R(20, 60); B = R(A - 8, A + 8); N = 5 * A - 4 * B; } while (B === A || N <= 0);
+    return numQ(`The average of five numbers is ${A}. If one number, ${N}, is removed, what is the average of the remaining four?`, B, [A, B + 2, B - 3, Math.round((5 * A + N) / 4)],
+      `Sum of five = 5 × ${A} = ${5 * A}. Remaining sum = ${5 * A} − ${N} = ${4 * B}. Average = ${4 * B} ÷ 4 = ${B}.`); },
+  () => { const h = R(2, 12), [m, n] = pick([[2, 3], [3, 4], [2, 5], [3, 5], [4, 5], [3, 7], [5, 7], [4, 7], [2, 7], [5, 8]]), a = h * m, b = h * n, l = h * m * n;
+    return numQ(`The HCF of two numbers is ${h} and their LCM is ${l}. If one number is ${a}, what is the other?`, b, [l / h, b + h, a + h, b * 2],
+      `HCF × LCM = product of the numbers. Other number = ${h} × ${l} ÷ ${a} = ${b}.`); },
+  () => { const [a, b] = pick([[2, 3], [3, 5], [4, 5], [5, 7], [3, 4], [7, 9], [2, 5]]), k = R(5, 60) * 10, amt = k * (a + b);
+    return numQ(`${rs(amt)} is divided between A and B in the ratio ${a} : ${b}. What is A's share?`, k * a, [k * b, k * a + k, amt / 2, k * a - k],
+      `A's share = ${a}/${a + b} × ${amt} = ${rs(k * a)}.`, rs); },
+  () => { const [d1, d2] = pick([[10, 20], [20, 25], [10, 10], [20, 20], [10, 30], [30, 20], [15, 20], [40, 50], [25, 40]]), e = d1 + d2 - d1 * d2 / 100;
+    return numQ(`What single discount is equivalent to two successive discounts of ${d1}% and ${d2}%?`, e, [d1 + d2, e + 2, e - 3, e + 5],
+      `Single discount = ${d1} + ${d2} − (${d1} × ${d2})/100 = ${e}%.`, n => n + '%'); },
+  () => { const a = R(10, 60), b = R(3, 15), c = R(3, 12), e = R(2, 9), d = e * R(2, 12), ans = a + b * c - d / e;
+    return numQ(`Simplify: ${a} + ${b} × ${c} − ${d} ÷ ${e}`, ans, [(a + b) * c - d / e, a + b * c - d, ans + e, ans - b],
+      `By BODMAS: ${b} × ${c} = ${b * c} and ${d} ÷ ${e} = ${d / e}. So ${a} + ${b * c} − ${d / e} = ${ans}.`); },
+  () => { const [x, y] = pick([[40, 60], [30, 60], [20, 30], [60, 90], [12, 24], [50, 75], [36, 45], [15, 10]]), v = 2 * x * y / (x + y);
+    return numQ(`A person travels from one station to another at ${x} km/h and returns at ${y} km/h. What is the average speed for the whole journey?`, v,
+      [(x + y) / 2, v + 4, v - 2, v + 6], `For equal distances, average speed = 2xy/(x + y) = 2 × ${x} × ${y} / ${x + y} = ${v} km/h.`, n => n + ' km/h'); },
+  () => { const p = pick([10, 20, 25, 40, 50, 60, 75]), x = R(2, 25) * 20, y = x * (100 + p) / 100;
+    return numQ(`The price of a ticket rises from ${rs(x)} to ${rs(y)}. What is the percentage increase?`, p, [p + 5, p - 5, p * 2, Math.round((y - x) / y * 100)],
+      `Increase = ${y - x}. Percentage = ${y - x}/${x} × 100 = ${p}%.`, n => n + '%'); },
+];
+
+/* ---------- Reasoning ---------- */
+const WORDS = ['CAT', 'DOG', 'SUN', 'MAP', 'PEN', 'BOX', 'RAIL', 'TRAIN', 'TRACK', 'GATE', 'LAMP', 'BELL', 'COACH', 'SIGNAL', 'ENGINE', 'TICKET', 'GUARD', 'BRIDGE'];
+const shiftW = (w, k) => w.split('').map(c => String.fromCharCode((c.charCodeAt(0) - 65 + k + 52) % 26 + 65)).join('');
+const PRIMES = [11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97];
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const RELATIONS = [
+  ['Pointing to a man, Rakesh said, "His mother is the only daughter of my mother." How is Rakesh related to the man?', 'Maternal uncle', 'Father', 'Brother', 'Grandfather',
+    "The only daughter of Rakesh's mother is Rakesh's sister. She is the man's mother, so Rakesh is his maternal uncle."],
+  ['Introducing a woman, Amit said, "She is the wife of the only son of my father." How is the woman related to Amit?', 'Wife', 'Sister', 'Sister-in-law', 'Mother',
+    "The only son of Amit's father is Amit himself, so the woman is Amit's wife."],
+  ['If P is the son of Q, and Q is the daughter of R, how is R related to P?', 'Grandparent', 'Uncle', 'Father', 'Brother',
+    "Q is P's mother and R is Q's parent, so R is P's grandparent. R's gender is not given."],
+  ['Pointing to a photograph, Neha said, "He is the son of the only son of my grandfather." How is the man in the photograph related to Neha?', 'Brother', 'Cousin', 'Uncle', 'Father',
+    "The only son of Neha's (paternal) grandfather is Neha's father. His son is Neha's brother."],
+  ["A's father is B's only son. How is B related to A?", 'Grandparent', 'Father', 'Uncle', 'Brother',
+    "B's only son is A's father, so B is A's grandparent."],
+  ['X is the sister of Y. Y is the brother of Z. Z is the son of W. How is X related to W?', 'Daughter', 'Sister', 'Mother', 'Niece',
+    "X, Y and Z are siblings and Z is W's son, so X (a sister) is W's daughter."],
+];
+const REASON = [
+  () => { const type = R(0, 4); const s = []; let exp;
+    if (type === 0) { const a = R(3, 40), d = R(3, 15); for (let i = 0; i < 6; i++) s.push(a + i * d); exp = `Each term increases by ${d}.`; }
+    if (type === 1) { const a = R(2, 6), m = pick([2, 3]); for (let i = 0; i < 6; i++) s.push(a * m ** i); exp = `Each term is multiplied by ${m}.`; }
+    if (type === 2) { const st = R(2, 9), k = pick([0, 1, -1, 2]); for (let i = 0; i < 6; i++) s.push((st + i) ** 2 + k);
+      exp = `The terms are n²${k > 0 ? ' + ' + k : k < 0 ? ' − ' + (-k) : ''} for n = ${st} to ${st + 5}.`; }
+    if (type === 3) { const a = R(2, 20), d = R(1, 4); let x = a; for (let i = 0; i < 6; i++) { s.push(x); x += d * (i + 1); } exp = `The differences are ${d}, ${2 * d}, ${3 * d}, ${4 * d}, ${5 * d}.`; }
+    if (type === 4) { const a = R(3, 6), c = pick([1, 2, -1]); let x = a; for (let i = 0; i < 6; i++) { s.push(x); x = x * 2 + c; } exp = `Each term = previous × 2 ${c > 0 ? '+ ' + c : '− ' + (-c)}.`; }
+    const ans = s[5];
+    return numQ(`Find the missing term in the series: ${s.slice(0, 5).join(', ')}, ?`, ans, [ans + 2, ans - 2, s[4] + (s[4] - s[3]), ans + 10], exp + ` Missing term = ${ans}.`); },
+  () => { const [w1, w2] = shuffle(WORDS).slice(0, 2), k = pick([1, 2, 3, 4, -1, -2]), ans = shiftW(w2, k), n = Math.abs(k);
+    return mcq(`In a certain code language, ${w1} is written as ${shiftW(w1, k)}. How is ${w2} written in that code?`, ans,
+      [shiftW(w2, k + 1), shiftW(w2, -k), ans.split('').reverse().join(''), shiftW(w2, k - 1), shiftW(w2, k + 2)],
+      `Each letter moves ${n} place${n > 1 ? 's' : ''} ${k > 0 ? 'forward' : 'backward'} in the alphabet: ${w2} → ${ans}.`); },
+  () => { const n = R(3, 12), m = R(2, 10), right = Math.random() < .5; let pos, q, exp;
+    if (!right) { pos = n + m; q = `Which letter is ${ord(m)} to the right of the ${ord(n)} letter from the left in the English alphabet?`;
+      exp = `The ${ord(n)} letter from the left is ${L(n)}. Counting ${m} to the right gives position ${pos}: ${L(pos)}.`; }
+    else { const p0 = 27 - n; pos = p0 - m; q = `Which letter is ${ord(m)} to the left of the ${ord(n)} letter from the right in the English alphabet?`;
+      exp = `The ${ord(n)} letter from the right is at position 27 − ${n} = ${p0} (${L(p0)}). Counting ${m} to the left gives position ${pos}: ${L(pos)}.`; }
+    return mcq(q, L(pos), [L(pos + 1), L(pos - 1), L(pos + 2), L(pos - 2)].filter(c => c >= 'A' && c <= 'Z'), exp); },
+  () => { const [a, b, c] = pick([[3, 4, 5], [6, 8, 10], [5, 12, 13], [9, 12, 15], [8, 6, 10], [12, 5, 13], [4, 3, 5]]);
+    const D = ['North', 'East', 'South', 'West'], V = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+    const d0 = R(0, 3), turnRight = Math.random() < .5, d1 = (d0 + (turnRight ? 1 : 3)) % 4, who = pick(NAMES);
+    const x = a * V[d0][0] + b * V[d1][0], y = a * V[d0][1] + b * V[d1][1];
+    const dir = (y > 0 ? 'North' : 'South') + '-' + (x > 0 ? 'East' : 'West');
+    const stem = `${who} walks ${a} km towards the ${D[d0]}, turns ${turnRight ? 'right' : 'left'} and walks ${b} km.`;
+    if (Math.random() < .5) return numQ(`${stem} How far is ${who} from the starting point?`, c, [a + b, Math.abs(a - b), c + 1, c + 2],
+      `The two legs are at right angles, so distance = √(${a}² + ${b}²) = ${c} km.`, n => n + ' km');
+    return mcq(`${stem} In which direction is ${who} now from the starting point?`, dir, ['North-East', 'North-West', 'South-East', 'South-West'],
+      `${who} ends ${Math.abs(y)} km ${y > 0 ? 'north' : 'south'} and ${Math.abs(x)} km ${x > 0 ? 'east' : 'west'} of the start, i.e. ${dir}.`); },
+  () => { const i = R(0, 6), n = R(10, 250), r = n % 7, ans = DAYS[(i + n) % 7];
+    return mcq(`If today is ${DAYS[i]}, which day of the week will it be after ${n} days?`, ans, [DAYS[(i + n + 1) % 7], DAYS[(i + n + 6) % 7], DAYS[(i + n + 2) % 7]],
+      `${n} = 7 × ${Math.floor(n / 7)} + ${r}. Whole weeks bring us back to ${DAYS[i]}; ${r} more day${r === 1 ? '' : 's'} gives ${ans}.`); },
+  () => { const [name, f] = pick([['its square', n => n * n], ['its cube', n => n ** 3], ['its square plus 1', n => n * n + 1], ['its square minus 1', n => n * n - 1], ['n × (n + 1)', n => n * (n + 1)]]);
+    const a = R(3, 6); let b; do { b = R(4, 12); } while (b === a);
+    const ans = f(b), alt = [f(a) / a * b, f(a) - a + b];
+    const wrong = [ans + b, ans - 2, f(b + 1), ans + 2, f(b - 1)].filter(v => !alt.includes(v));
+    return numQ(`Select the number that completes the analogy: ${a} : ${f(a)} :: ${b} : ?`, ans, wrong, `Each number maps to ${name}: ${a} → ${f(a)}, so ${b} → ${ans}.`); },
+  () => { const maps = [{ '×': '+', '÷': '−', '−': '×', '+': '÷' }, { '×': '−', '÷': '+', '−': '÷', '+': '×' }, { '×': '÷', '÷': '×', '−': '+', '+': '−' }];
+    const m = pick(maps), c = pick([2, 3, 4, 5, 6]), a = c * R(2, 6), b = R(2, 9), d = R(2, 9), e = R(2, 9), ans = a * b / c - d + e;
+    const meaning = Object.entries(m).map(([real, shown]) => `'${shown}' means '${real}'`).join(', ');
+    return numQ(`If ${meaning}, then what is the value of ${a} ${m['×']} ${b} ${m['÷']} ${c} ${m['−']} ${d} ${m['+']} ${e}?`, ans,
+      [a * b / c + d - e, ans + 2, ans - 1, a + b - c], `Replacing the signs gives ${a} × ${b} ÷ ${c} − ${d} + ${e} = ${a * b / c} − ${d} + ${e} = ${ans}.`); },
+  () => { const pr = shuffle(PRIMES).slice(0, 3), odd = pick([21, 27, 33, 39, 49, 51, 57, 63, 69, 77, 87, 91]); let f = 3; while (odd % f) f += 2;
+    return mcq(`Find the odd one out: ${shuffle([...pr, odd]).join(', ')}`, odd, pr, `All the others are prime numbers. ${odd} = ${f} × ${odd / f}, so it is not prime.`); },
+  () => { const N = R(20, 60), k = R(4, N - 3), who = pick(NAMES), ans = N - k + 1;
+    return numQ(`In a row of ${N} students, ${who} is ${ord(k)} from the left end. What is ${who}'s position from the right end?`, ans, [N - k, N - k + 2, k + 1],
+      `Position from right = total − position from left + 1 = ${N} − ${k} + 1 = ${ans}.`, ord); },
+  () => { const [q, a, w1, w2, w3, exp] = pick(RELATIONS); return mcq(q, a, [w1, w2, w3], exp); },
+];
+
+/* ---------- General Awareness (static facts) ---------- */
+const GA = [
+  ["India's first passenger train ran on 16 April 1853 between which two places?", 'Bori Bunder (Bombay) and Thane', 'Howrah and Hooghly', 'Madras and Arcot', 'Delhi and Agra'],
+  ['Where is the Rail Coach Factory of Indian Railways located?', 'Kapurthala', 'Perambur', 'Varanasi', 'Yelahanka'],
+  ['The Integral Coach Factory (ICF) is located in which city?', 'Chennai', 'Kapurthala', 'Rae Bareli', 'Bhopal'],
+  ['Chittaranjan Locomotive Works is located in which state?', 'West Bengal', 'Bihar', 'Jharkhand', 'Odisha'],
+  ['Banaras Locomotive Works, Varanasi, was earlier known as:', 'Diesel Locomotive Works', 'Rail Wheel Factory', 'Integral Coach Factory', 'Modern Coach Factory'],
+  ['The first Vande Bharat Express (2019) ran between:', 'New Delhi and Varanasi', 'New Delhi and Katra', 'Mumbai and Gandhinagar', 'Chennai and Mysuru'],
+  ['Where is the headquarters of Konkan Railway Corporation?', 'Navi Mumbai (CBD Belapur)', 'Madgaon', 'Mangaluru', 'Ratnagiri'],
+  ['Which was the first Indian railway to be inscribed as a UNESCO World Heritage Site (1999)?', 'Darjeeling Himalayan Railway', 'Nilgiri Mountain Railway', 'Kalka–Shimla Railway', 'Matheran Light Railway'],
+  ["'Kavach', developed for Indian Railways, is:", 'An automatic train protection system', 'A ticket booking app', 'A coach design', 'A freight corridor'],
+  ['The Rail Wheel Factory of Indian Railways is located at:', 'Yelahanka, Bengaluru', 'Kapurthala', 'Patiala', 'Chittaranjan'],
+  ['Article 21 of the Indian Constitution deals with:', 'Protection of life and personal liberty', 'Abolition of untouchability', 'Right to constitutional remedies', 'Equality before law'],
+  ['Which Article of the Constitution abolishes untouchability?', 'Article 17', 'Article 14', 'Article 19', 'Article 21'],
+  ['Dr B. R. Ambedkar called which Article the "heart and soul" of the Constitution?', 'Article 32', 'Article 21', 'Article 14', 'Article 370'],
+  ['Fundamental Duties were added to the Constitution by which amendment?', '42nd Amendment (1976)', '44th Amendment (1978)', '73rd Amendment (1992)', '86th Amendment (2002)'],
+  ['Who was the chairman of the Drafting Committee of the Constitution?', 'B. R. Ambedkar', 'Rajendra Prasad', 'Jawaharlal Nehru', 'Sardar Patel'],
+  ['Who was the President of the Constituent Assembly?', 'Rajendra Prasad', 'B. R. Ambedkar', 'Sachchidananda Sinha', 'Maulana Azad'],
+  ['What is the minimum age to be elected President of India?', '35 years', '25 years', '30 years', '40 years'],
+  ['How many members of the Rajya Sabha are nominated by the President?', '12', '2', '10', '14'],
+  ['Which amendment gave constitutional status to Panchayati Raj institutions?', '73rd Amendment', '74th Amendment', '42nd Amendment', '61st Amendment'],
+  ['The Battle of Plassey was fought in:', '1757', '1764', '1857', '1526'],
+  ['The First Battle of Panipat was fought in:', '1526', '1556', '1761', '1192'],
+  ['The Jallianwala Bagh massacre took place in:', '1919', '1920', '1905', '1942'],
+  ["Gandhi's Dandi March began in:", '1930', '1920', '1942', '1919'],
+  ['The Quit India Movement was launched in:', '1942', '1930', '1920', '1947'],
+  ['Who founded the Indian National Congress in 1885?', 'A. O. Hume', 'Dadabhai Naoroji', 'W. C. Bonnerjee', 'Surendranath Banerjee'],
+  ['In which year did Mahatma Gandhi return to India from South Africa?', '1915', '1909', '1919', '1920'],
+  ['Who founded the Maurya Empire?', 'Chandragupta Maurya', 'Ashoka', 'Bindusara', 'Chanakya'],
+  ['Who was the first Governor-General of independent India?', 'Lord Mountbatten', 'C. Rajagopalachari', 'Lord Canning', 'Lord Wavell'],
+  ['Who was the first and last Indian Governor-General of India?', 'C. Rajagopalachari', 'Rajendra Prasad', 'Sardar Patel', 'S. Radhakrishnan'],
+  ['Which is the largest state of India by area?', 'Rajasthan', 'Madhya Pradesh', 'Maharashtra', 'Uttar Pradesh'],
+  ['Kaziranga National Park is in which state?', 'Assam', 'West Bengal', 'Meghalaya', 'Arunachal Pradesh'],
+  ['Gir National Park, home of the Asiatic lion, is in:', 'Gujarat', 'Rajasthan', 'Madhya Pradesh', 'Maharashtra'],
+  ['What is the capital of Arunachal Pradesh?', 'Itanagar', 'Shillong', 'Kohima', 'Aizawl'],
+  ['Which river is known as the "Sorrow of Bihar"?', 'Kosi', 'Gandak', 'Son', 'Damodar'],
+  ['Which pass connects the Kashmir Valley with Ladakh?', 'Zoji La', 'Nathu La', 'Shipki La', 'Bomdi La'],
+  ['Which is the longest river in India?', 'Ganga', 'Godavari', 'Yamuna', 'Narmada'],
+  ['Through how many Indian states does the Tropic of Cancer pass?', '8', '6', '7', '9'],
+  ['The Sanchi Stupa is located in which state?', 'Madhya Pradesh', 'Uttar Pradesh', 'Bihar', 'Maharashtra'],
+  ['The Reserve Bank of India was established in:', '1935', '1947', '1949', '1969'],
+  ['GST came into force in India on:', '1 July 2017', '1 April 2017', '8 November 2016', '1 January 2018'],
+  ['Kathakali is a classical dance form of:', 'Kerala', 'Tamil Nadu', 'Karnataka', 'Odisha'],
+  ['Kuchipudi dance originated in:', 'Andhra Pradesh', 'Kerala', 'Odisha', 'Manipur'],
+  ['Bihu is a festival of:', 'Assam', 'Punjab', 'Kerala', 'Gujarat'],
+  ['The Hornbill Festival is celebrated in:', 'Nagaland', 'Mizoram', 'Sikkim', 'Tripura'],
+  ['What is the national aquatic animal of India?', 'Ganges river dolphin', 'Gharial', 'Olive ridley turtle', 'Mahseer'],
+  ['Who wrote "The Discovery of India"?', 'Jawaharlal Nehru', 'Mahatma Gandhi', 'Rabindranath Tagore', 'B. R. Ambedkar'],
+  ['"Gitanjali" was written by:', 'Rabindranath Tagore', 'Bankim Chandra Chatterjee', 'Sarojini Naidu', 'Premchand'],
+  ['The Dronacharya Award is given to:', 'Sports coaches', 'Teachers', 'Scientists', 'Soldiers'],
+  ['The Durand Cup is associated with which sport?', 'Football', 'Hockey', 'Cricket', 'Polo'],
+  ['The Ranji Trophy is associated with which sport?', 'Cricket', 'Football', 'Hockey', 'Badminton'],
+  ["India's first satellite, launched in 1975, was:", 'Aryabhata', 'Bhaskara', 'Rohini', 'INSAT-1A'],
+  ["Chandrayaan-3's lander touched down on the Moon on:", '23 August 2023', '14 July 2023', '22 July 2019', '15 August 2023'],
+  ['Where is the headquarters of the United Nations?', 'New York', 'Geneva', 'Paris', 'Vienna'],
+  ['What is the currency of Japan?', 'Yen', 'Won', 'Yuan', 'Ringgit'],
+];
+
+/* ---------- General Science (static facts) ---------- */
+const SCI = [
+  ['What is the SI unit of force?', 'Newton', 'Joule', 'Pascal', 'Watt'],
+  ['What is the SI unit of electrical resistance?', 'Ohm', 'Volt', 'Ampere', 'Coulomb'],
+  ['What is the SI unit of power?', 'Watt', 'Joule', 'Newton', 'Volt'],
+  ['What is the SI unit of electric current?', 'Ampere', 'Volt', 'Ohm', 'Coulomb'],
+  ['What is the SI unit of frequency?', 'Hertz', 'Decibel', 'Newton', 'Tesla'],
+  ['The speed of light in vacuum is approximately:', '3 × 10⁸ m/s', '3 × 10⁶ m/s', '3 × 10⁵ m/s', '330 m/s'],
+  ['Sound cannot travel through:', 'Vacuum', 'Water', 'Steel', 'Air'],
+  ['The value of acceleration due to gravity on Earth is about:', '9.8 m/s²', '8.9 m/s²', '1.6 m/s²', '98 m/s²'],
+  ["Ohm's law is expressed as:", 'V = IR', 'P = VI', 'V = I/R', 'F = ma'],
+  ['The kinetic energy of a body of mass m moving at speed v is:', '½mv²', 'mv', 'mgh', 'mv²'],
+  ["Newton's first law of motion is also called the law of:", 'Inertia', 'Momentum', 'Gravitation', 'Action and reaction'],
+  ['One horsepower is approximately equal to:', '746 W', '1000 W', '500 W', '74.6 W'],
+  ['Which lens is used to correct myopia (short-sightedness)?', 'Concave lens', 'Convex lens', 'Bifocal lens', 'Cylindrical lens'],
+  ['A transformer works on the principle of:', 'Electromagnetic induction', 'Electrostatic induction', 'Thermal expansion', 'Photoelectric effect'],
+  ['A device that converts AC into DC is called a:', 'Rectifier', 'Transformer', 'Inverter', 'Generator'],
+  ['A light year is a unit of:', 'Distance', 'Time', 'Light intensity', 'Speed'],
+  ['What is the chemical formula of common salt?', 'NaCl', 'KCl', 'NaHCO₃', 'Na₂CO₃'],
+  ['Baking soda is chemically:', 'Sodium hydrogen carbonate (NaHCO₃)', 'Sodium carbonate (Na₂CO₃)', 'Calcium carbonate (CaCO₃)', 'Sodium chloride (NaCl)'],
+  ['What is the chemical formula of Plaster of Paris?', 'CaSO₄·½H₂O', 'CaSO₄·2H₂O', 'CaCO₃', 'CaO'],
+  ['What is the pH of pure water at 25 °C?', '7', '0', '1', '14'],
+  ['Which gas is most abundant in the Earth’s atmosphere?', 'Nitrogen', 'Oxygen', 'Carbon dioxide', 'Argon'],
+  ['The chemical symbol K stands for:', 'Potassium', 'Krypton', 'Calcium', 'Phosphorus'],
+  ['What is the atomic number of carbon?', '6', '12', '8', '14'],
+  ['Which non-metal is a liquid at room temperature?', 'Bromine', 'Chlorine', 'Iodine', 'Sulphur'],
+  ['Which metal is a liquid at room temperature?', 'Mercury', 'Sodium', 'Gallium', 'Lead'],
+  ['The hardest naturally occurring substance is:', 'Diamond', 'Graphite', 'Quartz', 'Iron'],
+  ['Who is known as the father of the periodic table?', 'Dmitri Mendeleev', 'John Dalton', 'Henry Moseley', 'J. J. Thomson'],
+  ['Laughing gas is:', 'Nitrous oxide (N₂O)', 'Nitric oxide (NO)', 'Nitrogen dioxide (NO₂)', 'Carbon monoxide (CO)'],
+  ['Brass is an alloy of:', 'Copper and zinc', 'Copper and tin', 'Iron and carbon', 'Aluminium and copper'],
+  ['Which is the lightest element?', 'Hydrogen', 'Helium', 'Lithium', 'Oxygen'],
+  ['The ozone layer protects us from:', 'Ultraviolet radiation', 'Infrared radiation', 'Radio waves', 'Visible light'],
+  ['Which metal is used as a catalyst in the hydrogenation of vegetable oils?', 'Nickel', 'Iron', 'Platinum', 'Copper'],
+  ['Deficiency of Vitamin C causes:', 'Scurvy', 'Rickets', 'Beriberi', 'Night blindness'],
+  ['Deficiency of Vitamin D causes:', 'Rickets', 'Scurvy', 'Pellagra', 'Anaemia'],
+  ['Night blindness is caused by deficiency of:', 'Vitamin A', 'Vitamin B₁', 'Vitamin C', 'Vitamin K'],
+  ['Which organelle is called the powerhouse of the cell?', 'Mitochondria', 'Ribosome', 'Golgi body', 'Nucleus'],
+  ['The largest gland in the human body is the:', 'Liver', 'Pancreas', 'Thyroid', 'Pituitary'],
+  ['Which blood group is called the universal donor?', 'O negative', 'AB positive', 'A positive', 'B negative'],
+  ['Insulin is produced by the:', 'Pancreas', 'Liver', 'Kidney', 'Thyroid'],
+  ['How many bones are there in an adult human body?', '206', '212', '196', '300'],
+  ['The functional unit of the kidney is the:', 'Nephron', 'Neuron', 'Alveolus', 'Villus'],
+  ['Haemoglobin contains which metal?', 'Iron', 'Magnesium', 'Copper', 'Zinc'],
+  ['Which gas is released during photosynthesis?', 'Oxygen', 'Carbon dioxide', 'Nitrogen', 'Hydrogen'],
+  ['In plants, water is transported from roots to leaves through the:', 'Xylem', 'Phloem', 'Stomata', 'Cambium'],
+  ['Which planet is known as the Red Planet?', 'Mars', 'Jupiter', 'Venus', 'Mercury'],
+];
+
+/* ---------- exam patterns ---------- */
+const SEC = { math: 'Mathematics', reason: 'General Intelligence & Reasoning', ga: 'General Awareness', sci: 'General Science' };
+const SHORT = { math: 'Maths', reason: 'Reasoning', ga: 'GA', sci: 'Science' };
+const EXAMS = {
+  ntpc: { name: 'RRB NTPC CBT-1', note: 'Graduate and undergraduate level posts', mins: 90, sections: [['ga', 40], ['math', 30], ['reason', 30]] },
+  groupd: { name: 'RRB Group D CBT', note: 'Level 1 posts', mins: 90, sections: [['math', 25], ['reason', 30], ['sci', 25], ['ga', 20]] },
+  alp: { name: 'RRB ALP CBT-1', note: 'Assistant Loco Pilot, first stage', mins: 60, sections: [['math', 20], ['reason', 25], ['sci', 20], ['ga', 15]] },
+};
+const NEG = 1 / 3;
+
+function genSection(sec, n) {
+  if (sec === 'ga' || sec === 'sci') {
+    return shuffle(sec === 'ga' ? GA : SCI).slice(0, n).map(([q, a, ...rest]) => {
+      const w = rest.slice(0, 3); return finalize({ q, opts: [a, ...w], ans: a, exp: rest[3] || `Correct answer: ${a}.` });
+    });
+  }
+  const gens = sec === 'math' ? MATH : REASON, out = [], seen = new Set(); let order = [];
+  for (let guard = 0; out.length < n && guard < n * 30; guard++) {
+    if (!order.length) order = shuffle(gens.map((_, i) => i));
+    const it = gens[order.pop()]();
+    if (seen.has(it.q) || it.opts.length < 4) continue;
+    seen.add(it.q); out.push(finalize(it));
+  }
+  return out;
+}
+
+/* ---------- state + views ---------- */
+const app = document.getElementById('app'), topRight = document.getElementById('topRight'), topTitle = document.getElementById('topTitle');
+let T = null, tick = null, reviewFilter = 'all';
+
+function home() {
+  clearInterval(tick); T = null; topTitle.textContent = 'Free Mock Tests'; topRight.innerHTML = '';
+  const hist = store.get('rrb-mock-history', []);
+  app.innerHTML = `<div class="wrap home">
+    <section class="lede">
+      <div class="eyebrow">Railway Recruitment Board · CBT practice</div>
+      <h1>Full-length RRB mock tests, free and unlimited</h1>
+      <p>Pick an exam and sit a timed computer-based test with the real section split, a question palette like the exam screen, and −1/3 negative marking. Maths and reasoning questions are generated fresh for every attempt, so no two mocks are the same. Every answer comes with a worked solution.</p>
+    </section>
+    <section class="board" aria-label="Full mock tests">
+      ${Object.entries(EXAMS).map(([id, e]) => {
+        const total = e.sections.reduce((s, x) => s + x[1], 0);
+        return `<article class="exam">
+          <div><div class="eyebrow">${esc(e.note)}</div><h2>${esc(e.name)}</h2></div>
+          <div class="meta"><span><b>${total}</b> questions</span><span><b>${e.mins}</b> min</span><span><b>${total}</b> marks</span></div>
+          <div class="route">${e.sections.map(([s, n]) => `<span class="chip">${SHORT[s]} ${n}</span>`).join('')}</div>
+          <div><button class="btn" data-exam="${id}">Start full mock</button></div>
+        </article>`; }).join('')}
+    </section>
+    <section class="sectional">
+      <h2>Sectional practice</h2>
+      <p class="notes">20 questions in 20 minutes from one subject. Same marking scheme as the full test.</p>
+      <div class="row">${Object.keys(SEC).map(s => `<button class="btn ghost" data-sec="${s}">${SEC[s]}</button>`).join('')}</div>
+    </section>
+    ${hist.length ? `<section class="history"><h2>Your recent attempts</h2><p class="notes">Saved in this browser only.</p>
+      <div class="scroll-x"><table><thead><tr><th>Date</th><th>Test</th><th>Score</th><th>Correct</th><th>Wrong</th><th>Accuracy</th></tr></thead><tbody>
+      ${hist.map(h => `<tr><td>${esc(h.date)}</td><td>${esc(h.name)}</td><td>${h.score.toFixed(2)} / ${h.max}</td><td>${h.c}</td><td>${h.w}</td><td>${h.acc}%</td></tr>`).join('')}
+      </tbody></table></div></section>` : ''}
+    <section class="notes">
+      <div>Patterns follow recent RRB notifications. Always confirm the current pattern and syllabus in the official notification on your regional RRB website before the exam.</div>
+      <div>General Awareness here covers static GK (railways, polity, history, geography, culture, science). Add current affairs from a monthly digest for complete preparation.</div>
+    </section>
+  </div>`;
+  app.querySelectorAll('[data-exam]').forEach(b => b.onclick = () => instructions(EXAMS[b.dataset.exam]));
+  app.querySelectorAll('[data-sec]').forEach(b => b.onclick = () => instructions({ name: SEC[b.dataset.sec] + ' — sectional', mins: 20, sections: [[b.dataset.sec, 20]] }));
+  window.scrollTo(0, 0);
+}
+
+function instructions(cfg) {
+  const total = cfg.sections.reduce((s, x) => s + x[1], 0);
+  topTitle.textContent = cfg.name; topRight.innerHTML = '';
+  app.innerHTML = `<div class="wrap instr">
+    <div class="eyebrow">Instructions</div>
+    <h1>${esc(cfg.name)}</h1>
+    <ol>
+      <li>The test has <b>${total} questions</b> and lasts <b>${cfg.mins} minutes</b>. It submits automatically when the timer reaches zero.</li>
+      <li>Each correct answer gets <b>1 mark</b>. Each wrong answer loses <b>1/3 mark</b>. Unanswered questions score zero.</li>
+      <li>Sections: ${cfg.sections.map(([s, n]) => `${SEC[s]} (${n})`).join(', ')}. You can move between sections at any time.</li>
+      <li>Questions marked for review that also have an answer are counted in your score.</li>
+    </ol>
+    <div class="legend">${legend()}</div>
+    <div class="actions"><button class="btn" id="go">I am ready, start the test</button><button class="btn ghost" id="back">Back</button></div>
+  </div>`;
+  document.getElementById('go').onclick = () => start(cfg);
+  document.getElementById('back').onclick = home;
+  window.scrollTo(0, 0);
+}
+
+function legend(counts) {
+  const items = [['nv', 'Not visited'], ['na', 'Not answered'], ['a', 'Answered'], ['m', 'Marked for review'], ['am', 'Answered & marked']];
+  return items.map(([k, l]) => `<span><i class="dot st-${k}"></i>${l}${counts ? ` <b>${counts[k]}</b>` : ''}</span>`).join('');
+}
+
+function start(cfg) {
+  const qs = []; cfg.sections.forEach(([s, n]) => genSection(s, n).forEach(q => qs.push({ ...q, sec: s })));
+  T = { cfg, qs, resp: qs.map(() => null), mark: qs.map(() => false), seen: qs.map(() => false), cur: 0, startAt: Date.now(), endAt: Date.now() + cfg.mins * 60000 };
+  T.seen[0] = true;
+  topTitle.textContent = cfg.name;
+  topRight.innerHTML = `<span class="timer" id="timer" aria-live="off"></span>`;
+  clearInterval(tick); tick = setInterval(updTimer, 1000); updTimer();
+  renderTest();
+}
+
+function updTimer() {
+  if (!T) return;
+  const left = Math.max(0, Math.round((T.endAt - Date.now()) / 1000)), el = document.getElementById('timer');
+  if (el) { const h = Math.floor(left / 3600), m = Math.floor(left % 3600 / 60), s = left % 60;
+    el.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    el.classList.toggle('warn', left <= 300); }
+  if (left === 0) submit();
+}
+
+const status = i => { const r = T.resp[i] !== null, m = T.mark[i]; return r && m ? 'am' : m ? 'm' : r ? 'a' : T.seen[i] ? 'na' : 'nv'; };
+const counts = () => { const c = { nv: 0, na: 0, a: 0, m: 0, am: 0 }; T.qs.forEach((_, i) => c[status(i)]++); return c; };
+
+function renderTest() {
+  const i = T.cur, q = T.qs[i], secs = T.cfg.sections.map(s => s[0]);
+  const firstOf = s => T.qs.findIndex(x => x.sec === s);
+  app.innerHTML = `<div class="wrap console">
+    ${secs.length > 1 ? `<nav class="secbar" aria-label="Sections">${secs.map(s => `<button data-go="${firstOf(s)}" aria-current="${q.sec === s}">${SEC[s]}</button>`).join('')}</nav>` : ''}
+    <section class="qpanel">
+      <div class="qhead"><b>Question ${i + 1} of ${T.qs.length}</b><span>${SEC[q.sec]} · <span class="marks">+1 / −0.33</span></span></div>
+      <div class="qtext">${esc(q.q)}</div>
+      <div class="opts" role="radiogroup" aria-label="Options">
+        ${q.opts.map((o, k) => `<label class="opt${T.resp[i] === k ? ' sel' : ''}"><input type="radio" name="opt" id="opt${k}" value="${k}"${T.resp[i] === k ? ' checked' : ''}><span><span class="k">${'ABCD'[k]}.</span> ${esc(o)}</span></label>`).join('')}
+      </div>
+      <div class="qactions">
+        <div class="grp">
+          <button class="btn review" id="markNext">Mark for review &amp; next</button>
+          <button class="btn ghost" id="clear">Clear response</button>
+        </div>
+        <div class="grp">
+          <button class="btn ghost" id="prev"${i === 0 ? ' disabled' : ''}>Previous</button>
+          <button class="btn ok" id="next">Save &amp; next</button>
+          <button class="btn ghost palette-toggle" id="palBtn">Question palette</button>
+        </div>
+      </div>
+    </section>
+    <aside class="rail" id="rail" aria-label="Question palette">
+      <div class="legend">${legend(counts())}</div>
+      ${secs.map(s => `<div><h3>${SHORT[s]}</h3><div class="pal">${T.qs.map((x, k) => x.sec === s ? `<button class="pn st-${status(k)}${k === i ? ' cur' : ''}" data-go="${k}" aria-label="Question ${k + 1}">${k + 1}</button>` : '').join('')}</div></div>`).join('')}
+      <button class="btn" id="submitBtn">Submit test</button>
+    </aside>
+  </div>`;
+  app.querySelectorAll('input[name=opt]').forEach(r => r.onchange = () => { T.resp[i] = +r.value; renderTest(); });
+  app.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(+b.dataset.go));
+  document.getElementById('next').onclick = () => go(i + 1);
+  document.getElementById('prev').onclick = () => go(i - 1);
+  document.getElementById('markNext').onclick = () => { T.mark[i] = true; go(i + 1); };
+  document.getElementById('clear').onclick = () => { T.resp[i] = null; T.mark[i] = false; renderTest(); };
+  document.getElementById('submitBtn').onclick = confirmSubmit;
+  document.getElementById('palBtn').onclick = () => document.getElementById('rail').classList.toggle('open');
+}
+
+function go(k) {
+  if (k < 0) return;
+  if (k >= T.qs.length) { renderTest(); confirmSubmit(); return; }
+  T.cur = k; T.seen[k] = true; renderTest();
+  document.querySelector('.qpanel')?.scrollIntoView({ block: 'nearest' });
+}
+
+function confirmSubmit() {
+  const c = counts(), m = document.getElementById('modal');
+  document.getElementById('modalTitle').textContent = 'Submit test?';
+  document.getElementById('modalBody').innerHTML = `<table>
+    <tr><td>Answered</td><td>${c.a + c.am}</td></tr><tr><td>Not answered</td><td>${c.na}</td></tr>
+    <tr><td>Marked for review (no answer)</td><td>${c.m}</td></tr><tr><td>Not visited</td><td>${c.nv}</td></tr></table>
+    <p class="notes">You cannot change answers after submitting.</p>`;
+  document.getElementById('modalActions').innerHTML = `<button class="btn" id="yes">Submit</button><button class="btn ghost" id="no">Back to test</button>`;
+  m.hidden = false; document.getElementById('no').focus();
+  document.getElementById('yes').onclick = () => { m.hidden = true; submit(); };
+  document.getElementById('no').onclick = () => { m.hidden = true; };
+}
+
+function submit() {
+  if (!T || T.done) return;
+  T.done = true; clearInterval(tick); document.getElementById('modal').hidden = true;
+  const secStats = {}; let c = 0, w = 0;
+  T.qs.forEach((q, i) => {
+    const s = secStats[q.sec] ||= { n: 0, c: 0, w: 0 }; s.n++;
+    if (T.resp[i] === null) return;
+    if (T.resp[i] === q.a) { c++; s.c++; } else { w++; s.w++; }
+  });
+  const max = T.qs.length, score = c - w * NEG, acc = c + w ? Math.round(c / (c + w) * 100) : 0;
+  const used = Math.min(T.cfg.mins * 60, Math.round((Date.now() - T.startAt) / 1000));
+  const hist = store.get('rrb-mock-history', []);
+  hist.unshift({ date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }), name: T.cfg.name, score, max, c, w, acc });
+  store.set('rrb-mock-history', hist.slice(0, 10));
+  T.result = { c, w, u: max - c - w, max, score, acc, used, secStats };
+  reviewFilter = 'all'; topRight.innerHTML = ''; renderResult();
+}
+
+function renderResult() {
+  const r = T.result, mm = Math.floor(r.used / 60), ss = r.used % 60;
+  const items = T.qs.map((q, i) => ({ q, i, st: T.resp[i] === null ? 'u' : T.resp[i] === q.a ? 'c' : 'w' }));
+  const shown = items.filter(x => reviewFilter === 'all' || x.st === reviewFilter);
+  app.innerHTML = `<div class="wrap result">
+    <div><div class="eyebrow">Result</div><h1>${esc(T.cfg.name)}</h1></div>
+    <div class="scorecard">
+      <div class="tile main"><div class="l">Score</div><div class="v">${r.score.toFixed(2)} <small>/ ${r.max}</small></div></div>
+      <div class="tile"><div class="l">Correct</div><div class="v">${r.c}</div></div>
+      <div class="tile"><div class="l">Wrong (−${(r.w * NEG).toFixed(2)})</div><div class="v">${r.w}</div></div>
+      <div class="tile"><div class="l">Not attempted</div><div class="v">${r.u}</div></div>
+      <div class="tile"><div class="l">Accuracy</div><div class="v">${r.acc}%</div></div>
+      <div class="tile"><div class="l">Time used</div><div class="v">${mm}m ${String(ss).padStart(2, '0')}s</div></div>
+    </div>
+    <div class="scroll-x"><table class="sectbl"><thead><tr><th>Section</th><th>Questions</th><th>Correct</th><th>Wrong</th><th>Score</th><th>Accuracy</th></tr></thead><tbody>
+      ${Object.entries(r.secStats).map(([s, x]) => { const a = x.c + x.w ? Math.round(x.c / (x.c + x.w) * 100) : 0;
+        return `<tr><td>${SEC[s]}</td><td>${x.n}</td><td>${x.c}</td><td>${x.w}</td><td>${(x.c - x.w * NEG).toFixed(2)}</td><td><div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">${a}%<div class="bar"><i style="width:${a}%"></i></div></div></td></tr>`; }).join('')}
+    </tbody></table></div>
+    <div class="actions"><button class="btn" id="again">Take another mock</button><button class="btn ghost" id="retry">Retry this test with new questions</button></div>
+    <section style="display:grid;gap:12px">
+      <h2>Solutions</h2>
+      <div class="filters">${[['all', 'All'], ['w', 'Wrong'], ['u', 'Not attempted'], ['c', 'Correct']].map(([k, l]) =>
+        `<button data-f="${k}" aria-pressed="${reviewFilter === k}">${l} (${k === 'all' ? items.length : items.filter(x => x.st === k).length})</button>`).join('')}</div>
+      <div class="rvlist">${shown.length ? shown.map(({ q, i, st }) => `<article class="rv ${st}">
+        <div class="h"><span>Q${i + 1} · ${SEC[q.sec]}</span><span class="tag ${st}">${{ c: 'Correct +1', w: 'Wrong −0.33', u: 'Not attempted' }[st]}</span></div>
+        <div>${esc(q.q)}</div>
+        <ul>${q.opts.map((o, k) => `<li class="${k === q.a ? 'right' : T.resp[i] === k ? 'picked' : ''}">${'ABCD'[k]}. ${esc(o)}${k === q.a ? ' ✓' : T.resp[i] === k ? ' (your answer)' : ''}</li>`).join('')}</ul>
+        <div class="exp">${esc(q.exp)}</div></article>`).join('') : '<p class="notes">No questions in this filter.</p>'}</div>
+    </section>
+  </div>`;
+  document.getElementById('again').onclick = home;
+  document.getElementById('retry').onclick = () => instructions(T.cfg);
+  app.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { reviewFilter = b.dataset.f; renderResult(); });
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('modal').hidden = true; });
+home();
+</script>
+</html>
