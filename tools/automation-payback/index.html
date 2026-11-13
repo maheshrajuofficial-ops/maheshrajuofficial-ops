@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Rank an automation shortlist against a hard capital gate on payback, NPV and IRR, then test whether the pick survives 125 what-if cases. Free, runs in your browser.">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Automation Payback Evaluator</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a capital appropriation request sheet — dense line-item inputs on the
+   left, a stamped verdict block on the right, one column on a phone. */
+:root{
+  --paper:#F4F3EF; --sheet:#FFFFFF; --ink:#15181B; --ink-2:#565D65;
+  --ink-3:#7E858C; --rule:#D5D3CD; --rule-2:#E7E5E0;
+  --steel:#1F4E6B; --steel-soft:#E8EFF4;
+  --ok:#1B6B49; --ok-soft:#E4F0EA; --warn:#8E5E00; --warn-soft:#F6EEDC;
+  --bad:#9B2C1E; --bad-soft:#F6E6E3;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#14171A; --sheet:#1C1F23; --ink:#E9E8E4; --ink-2:#A2A8AF;
+  --ink-3:#7C838A; --rule:#31353B; --rule-2:#262A2E;
+  --steel:#7BB0CE; --steel-soft:#1A2A35;
+  --ok:#5CC395; --ok-soft:#162B22; --warn:#D9A445; --warn-soft:#2B2416;
+  --bad:#E57F6C; --bad-soft:#2E1C19; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#14171A; --sheet:#1C1F23; --ink:#E9E8E4; --ink-2:#A2A8AF;
+  --ink-3:#7C838A; --rule:#31353B; --rule-2:#262A2E;
+  --steel:#7BB0CE; --steel-soft:#1A2A35;
+  --ok:#5CC395; --ok-soft:#162B22; --warn:#D9A445; --warn-soft:#2B2416;
+  --bad:#E57F6C; --bad-soft:#2E1C19; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);
+  font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);
+  z-index:20;background:var(--sheet);border-bottom:1px solid var(--rule)}
+.wrap{max-width:1180px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 56px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* ---- sticky recommendation rail ---- */
+.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;
+  background:var(--sheet);border-bottom:1px solid var(--rule)}
+.rail-in{max-width:1180px;margin:0 auto;display:flex;gap:10px 18px;
+  align-items:baseline;flex-wrap:wrap;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+.rail-tag{font-family:var(--f-display);font-size:10.5px;font-weight:700;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);
+  flex:0 0 auto;min-width:0}
+.rail-name{font-family:var(--f-display);font-weight:600;font-size:16px;
+  color:var(--ink);min-width:0;flex:1 1 180px;overflow-wrap:anywhere}
+.rail-figs{display:flex;gap:16px;flex-wrap:wrap;min-width:0}
+.rail-figs span{font-family:var(--f-mono);font-size:12.5px;color:var(--ink-2);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.rail-figs b{color:var(--ink);font-weight:600}
+
+/* ---- masthead ---- */
+.masthead{padding-block:30px 22px;border-bottom:2px solid var(--ink);
+  display:grid;gap:14px}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--steel);font-weight:500}
+.masthead h1{font-size:clamp(27px,5.4vw,42px);font-weight:700;letter-spacing:-.015em}
+.lede{color:var(--ink-2);max-width:62ch;font-size:15.5px}
+.lede b{color:var(--ink);font-weight:600}
+
+/* ---- global controls ---- */
+.globals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);
+  border-top:none;margin-bottom:26px}
+.g-cell{background:var(--sheet);padding:12px 14px;min-width:0}
+.g-cell label{display:block;font-family:var(--f-display);font-size:10.5px;
+  font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:5px}
+.g-cell .hint{font-size:11px;color:var(--ink-3);margin-top:4px;line-height:1.35}
+input[type=text],input[type=number],input[type=email]{width:100%;min-width:0;
+  background:transparent;border:none;border-bottom:1px solid var(--rule);
+  color:var(--ink);font-family:var(--f-mono);font-size:15px;font-weight:500;
+  padding:3px 0;border-radius:0;font-variant-numeric:tabular-nums}
+input:focus-visible{outline:2px solid var(--steel);outline-offset:2px;
+  border-bottom-color:transparent}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+/* ---- two-column work area ---- */
+.work{display:grid;grid-template-columns:minmax(0,1fr);gap:30px;align-items:start}
+@media (min-width:920px){.work{grid-template-columns:minmax(0,1fr) minmax(0,1.04fr)}}
+.col{min-width:0;display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-content:start}
+@media (min-width:920px){.col-verdict{order:2}.col-inputs{order:1}}
+@media (min-width:560px){.figs{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:720px){.globals{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;
+  gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--ink);padding-bottom:7px}
+.sec-head h2{font-size:17px;font-weight:700;letter-spacing:-.005em}
+.sec-head .meta{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);
+  white-space:nowrap}
+
+/* ---- verdict stamp ---- */
+.stamp{border:1px solid var(--rule);background:var(--sheet)}
+.stamp-top{padding:16px 18px;border-bottom:1px solid var(--rule-2);
+  background:var(--ok-soft)}
+.stamp-top.none{background:var(--bad-soft)}
+.stamp-label{font-family:var(--f-display);font-size:10.5px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ok);
+  display:flex;align-items:center;gap:7px}
+.stamp-top.none .stamp-label{color:var(--bad)}
+.stamp-label::before{content:"";width:7px;height:7px;background:currentColor;
+  border-radius:50%;flex:0 0 auto}
+.stamp-name{font-family:var(--f-display);font-size:clamp(20px,3.4vw,26px);
+  font-weight:700;margin-top:7px;letter-spacing:-.01em;overflow-wrap:anywhere}
+.stamp-why{font-size:13.5px;color:var(--ink-2);margin-top:8px;max-width:54ch}
+.figs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1px;background:var(--rule-2)}
+.fig{background:var(--sheet);padding:12px 14px;min-width:0}
+.fig dt{font-family:var(--f-display);font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.fig dd{margin:5px 0 0;font-family:var(--f-mono);font-size:19px;font-weight:600;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.fig .sub{font-size:11px;color:var(--ink-3);font-weight:400;margin-top:2px;
+  font-family:var(--f-body);letter-spacing:0}
+
+/* ---- tables ---- */
+.t-scroll{overflow-x:auto;border:1px solid var(--rule);background:var(--sheet)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{font-family:var(--f-display);font-size:10px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);
+  text-align:right;padding:9px 11px;border-bottom:1px solid var(--rule);
+  white-space:nowrap;background:var(--sheet)}
+thead th:first-child{text-align:left}
+tbody td{padding:9px 11px;border-bottom:1px solid var(--rule-2);text-align:right;
+  font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tbody td:first-child{text-align:left;font-family:var(--f-body);min-width:140px;
+  white-space:normal}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.top td{background:var(--ok-soft)}
+tbody tr.gated td{color:var(--ink-3)}
+.rk{display:inline-flex;align-items:center;justify-content:center;
+  width:19px;height:19px;border:1px solid var(--rule);font-family:var(--f-mono);
+  font-size:11px;font-weight:600;margin-right:8px;vertical-align:1px;
+  color:var(--ink-2)}
+tr.top .rk{background:var(--ok);border-color:var(--ok);color:var(--sheet)}
+.oname{font-weight:500}
+.bar{display:block;height:3px;background:var(--rule-2);margin-top:5px;
+  max-width:160px}
+.bar i{display:block;height:100%;background:var(--steel)}
+tr.top .bar i{background:var(--ok)}
+.pill{display:inline-block;font-family:var(--f-display);font-size:9.5px;
+  font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;
+  border:1px solid currentColor;color:var(--bad);white-space:nowrap}
+
+/* ---- sweep ---- */
+.sweep{border:1px solid var(--rule);background:var(--sheet);padding:16px 18px}
+.sweep-head{display:flex;justify-content:space-between;align-items:baseline;
+  gap:10px;flex-wrap:wrap}
+.sweep-head h3{font-size:14.5px;font-weight:700}
+.sweep-verdict{font-family:var(--f-mono);font-size:12px;font-weight:600}
+.sweep-rows{display:grid;gap:9px;margin-top:14px}
+.sw-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;
+  align-items:baseline}
+.sw-row .n{font-size:13px;min-width:0;overflow-wrap:anywhere}
+.sw-row .v{font-family:var(--f-mono);font-size:12.5px;font-weight:600;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.sw-bar{grid-column:1/-1;height:6px;background:var(--rule-2)}
+.sw-bar i{display:block;height:100%;background:var(--steel)}
+.sw-row.lead .sw-bar i{background:var(--ok)}
+.sweep-note{font-size:12px;color:var(--ink-2);margin-top:14px;
+  padding-top:12px;border-top:1px solid var(--rule-2);line-height:1.45}
+
+/* ---- option line items ---- */
+.opt{border:1px solid var(--rule);background:var(--sheet)}
+.opt.over{border-color:var(--bad)}
+.opt-head{display:flex;gap:10px;align-items:center;padding:11px 13px;
+  border-bottom:1px solid var(--rule-2);background:var(--rule-2)}
+.opt-head .idx{font-family:var(--f-mono);font-size:11px;font-weight:600;
+  color:var(--ink-3);flex:0 0 auto}
+.opt-head input{font-family:var(--f-display);font-weight:600;font-size:14.5px;
+  border-bottom-color:transparent}
+.opt-head input:hover{border-bottom-color:var(--rule)}
+.kill{flex:0 0 auto;background:none;border:1px solid var(--rule);color:var(--ink-3);
+  font-family:var(--f-mono);font-size:14px;line-height:1;cursor:pointer;
+  width:24px;height:24px;padding:0;border-radius:0}
+.kill:hover{border-color:var(--bad);color:var(--bad)}
+.opt-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:1px;background:var(--rule-2)}
+.f{background:var(--sheet);padding:9px 13px 11px;min-width:0}
+.f label{display:block;font-size:10.5px;letter-spacing:.04em;color:var(--ink-3);
+  text-transform:uppercase;font-family:var(--f-display);font-weight:600;
+  margin-bottom:4px;line-height:1.3}
+.f input{font-size:14px}
+.opt-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  padding:9px 13px;border-top:1px solid var(--rule-2);font-family:var(--f-mono);
+  font-size:11.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.opt-foot b{color:var(--ink);font-weight:600}
+.opt-foot .over-msg{color:var(--bad);font-weight:600}
+.btn{font-family:var(--f-display);font-weight:600;font-size:13px;
+  letter-spacing:.02em;padding:10px 16px;border:1px solid var(--ink);
+  background:var(--sheet);color:var(--ink);cursor:pointer;border-radius:0}
+.btn:hover{background:var(--ink);color:var(--sheet)}
+.btn.ghost{border-color:var(--rule);color:var(--ink-2)}
+.btn.ghost:hover{background:var(--rule-2);color:var(--ink);border-color:var(--ink-3)}
+.btn-row{display:flex;gap:9px;flex-wrap:wrap}
+
+/* ---- method + cta ---- */
+details.method{border-top:1px solid var(--rule);margin-top:34px;padding-top:16px}
+details.method summary{font-family:var(--f-display);font-weight:700;font-size:14px;
+  cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
+details.method summary::-webkit-details-marker{display:none}
+details.method summary::before{content:"+";font-family:var(--f-mono);
+  color:var(--steel);font-weight:600}
+details.method[open] summary::before{content:"\2212"}
+.method-body{display:grid;gap:16px;margin-top:16px;
+  grid-template-columns:repeat(auto-fit,minmax(248px,1fr))}
+.method-body h4{font-family:var(--f-display);font-size:12px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--steel);margin:0 0 6px}
+.method-body p,.method-body li{font-size:13px;color:var(--ink-2);line-height:1.5}
+.method-body ul{margin:0;padding-left:17px;display:grid;gap:5px}
+.method-body code{font-family:var(--f-mono);font-size:12px;color:var(--ink);
+  background:var(--rule-2);padding:1px 4px}
+
+.cta{margin-top:34px;border:2px solid var(--ink);background:var(--sheet)}
+.cta-in{padding:24px 22px;display:grid;gap:14px}
+.cta h2{font-size:clamp(19px,3.2vw,25px);font-weight:700;letter-spacing:-.01em}
+.cta p{color:var(--ink-2);max-width:60ch;font-size:14.5px;margin:0}
+.cta p b{color:var(--ink);font-weight:600}
+.reach{display:grid;gap:10px;padding-top:14px;border-top:1px solid var(--rule-2)}
+.reach-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.reach-row .k{font-family:var(--f-display);font-size:10.5px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+  flex:0 0 auto;width:70px}
+.reach-row .v{font-family:var(--f-mono);font-size:14px;user-select:all;
+  min-width:0;overflow-wrap:anywhere}
+.reach-row a{color:var(--steel);text-decoration:none;border-bottom:1px solid currentColor}
+.reach-row a:hover{color:var(--ink)}
+.copied{font-family:var(--f-mono);font-size:11px;color:var(--ok);font-weight:600}
+form.lead{display:grid;gap:12px;padding-top:14px;border-top:1px solid var(--rule-2)}
+form.lead .row{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+form.lead .f-lead label{display:block;font-family:var(--f-display);font-size:10.5px;
+  font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+  margin-bottom:5px}
+.lead-msg{font-size:13.5px;font-weight:500}
+.lead-msg.ok{color:var(--ok)}
+.lead-msg.err{color:var(--bad)}
+footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--rule);
+  font-size:12px;color:var(--ink-3);display:flex;gap:8px 18px;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="rail">
+  <div class="rail-in">
+    <span class="rail-tag">Current pick</span>
+    <span class="rail-name" id="railName">—</span>
+    <span class="rail-figs" id="railFigs"></span>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="masthead">
+    <span class="eyebrow">Capital screening · discrete manufacturing</span>
+    <h1>Automation Payback Evaluator</h1>
+    <p class="lede">Put your automation shortlist against a <b>hard capital gate</b>, then
+      rank what clears it on payback, NPV, IRR and the capital it leaves unspent — and see
+      how many of 125 perturbed cases the winner survives. The table below is loaded with a
+      worked example; overwrite it with your own numbers.</p>
+  </header>
+
+  <div class="globals">
+    <div class="g-cell">
+      <label for="gate">Capital gate</label>
+      <input type="number" id="gate" value="30000" min="0" step="500">
+      <div class="hint">Anything above this is excluded before scoring.</div>
+    </div>
+    <div class="g-cell">
+      <label for="rate">Burdened labor rate</label>
+      <input type="number" id="rate" value="38" min="0" step="0.5">
+      <div class="hint">$/hr including benefits and overhead.</div>
+    </div>
+    <div class="g-cell">
+      <label for="disc">Discount rate</label>
+      <input type="number" id="disc" value="12" min="0" max="80" step="0.5">
+      <div class="hint">% — your hurdle rate for NPV.</div>
+    </div>
+    <div class="g-cell">
+      <label>Options clearing gate</label>
+      <div class="num" id="gateCount" style="font-size:19px;font-weight:600;padding-top:2px">—</div>
+      <div class="hint" id="gateCountHint">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="work">
+    <div class="col col-verdict">
+      <div class="stamp" id="stamp"></div>
+
+      <div>
+        <div class="sec-head">
+          <h2>Ranked</h2>
+          <span class="meta">absolute anchors · weights fixed</span>
+        </div>
+        <div class="t-scroll"><table>
+          <thead><tr>
+            <th>Option</th><th>Invested</th><th>Payback</th>
+            <th>NPV</th><th>IRR</th><th>Score</th>
+          </tr></thead>
+          <tbody id="rankBody"></tbody>
+        </table></div>
+      </div>
+
+      <div class="sweep" id="sweep"></div>
+    </div>
+
+    <div class="col col-inputs">
+      <div class="sec-head">
+        <h2>Shortlist</h2>
+        <span class="meta" id="optCount"></span>
+      </div>
+      <div id="opts" style="display:grid;gap:14px"></div>
+      <div class="btn-row">
+        <button class="btn" id="addOpt" type="button">Add option</button>
+        <button class="btn ghost" id="copyOut" type="button">Copy results</button>
+        <button class="btn ghost" id="resetAll" type="button">Reset example</button>
+        <span class="copied" id="copyNote" hidden>Copied</span>
+      </div>
+    </div>
+  </div>
+
+  <details class="method">
+    <summary>Method, and the assumptions that produced these numbers</summary>
+    <div class="method-body">
+      <div>
+        <h4>The gate comes first</h4>
+        <p>An option whose total installed cost exceeds the gate is removed <em>before</em>
+        anything is scored, not penalised inside the score. A project you cannot fund is not
+        a weak project; it is not a candidate. This is why the best-looking machine on the
+        list can disappear entirely when you tighten the gate by a few thousand dollars.</p>
+      </div>
+      <div>
+        <h4>Anchors are absolute</h4>
+        <p>Each component is scored against a fixed threshold, never against the rest of the
+        field: payback <code>0.75 yr → 100</code>, <code>4.0 yr → 0</code>; lifetime NPV per
+        dollar invested <code>4.0× → 100</code>; IRR <code>75% → 100</code> with your
+        discount rate as the floor; capital preserved as the share of the gate left unspent.
+        Adding a weak option to the list therefore cannot raise anyone else's score — a
+        shortlist cannot be padded to make a favourite look better.</p>
+      </div>
+      <div>
+        <h4>Weights</h4>
+        <ul>
+          <li>Payback — <b>30</b></li>
+          <li>NPV per dollar invested — <b>35</b></li>
+          <li>IRR — <b>20</b></li>
+          <li>Capital preserved — <b>15</b></li>
+        </ul>
+        <p style="margin-top:8px">Capital preserved is weighted deliberately low: unspent
+        budget has real option value, but not enough to overturn an option that is better on
+        return. The ranking is checked against strict dominance — if one option costs no more
+        and is at least as good on payback, NPV and IRR, it cannot be ranked below.</p>
+      </div>
+      <div>
+        <h4>The 125-case sweep</h4>
+        <p>Three drivers, five levels each: benefit realisation (60–100% of the savings you
+        claimed), labor rate (±20%), and capital overrun (0–40% above quoted). Every one of
+        the 125 combinations is re-gated and re-ranked from scratch, so an overrun can push an
+        option out of the budget entirely. The figure reported is how often your base-case
+        winner is still the winner.</p>
+      </div>
+      <div>
+        <h4>What this does not model</h4>
+        <ul>
+          <li><b>Taxes and depreciation.</b> Cash flows are pre-tax. A depreciation shield
+            raises NPV for the capital-heavy options, so a close race can flip.</li>
+          <li><b>Ramp.</b> Savings are treated as starting at full rate in year 1. A cell
+            needing a fixture and a taught program per part number will not.</li>
+          <li><b>Constraint location.</b> Hours saved at a non-bottleneck operation do not
+            become throughput. This tool cannot tell which of your operations is the
+            constraint; a capacity model can.</li>
+          <li><b>Risk of non-delivery.</b> Integration schedule, operator acceptance and
+            vendor support are not scored.</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Definitions</h4>
+        <ul>
+          <li><b>Invested</b> = capital + installation + training.</li>
+          <li><b>Net/yr</b> = (hours saved/wk × 52 × rate) + scrap avoided + (added units ×
+            margin) − recurring cost.</li>
+          <li><b>Payback</b> = invested ÷ net annual, undiscounted.</li>
+          <li><b>NPV</b> discounts the net annual over the useful life at your hurdle rate.</li>
+          <li><b>IRR</b> solved by bisection on the same annuity; blank when the nominal
+            outlay is never recovered.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <section class="cta">
+    <div class="cta-in">
+      <h2>This screens a shortlist. It does not tell you where your constraint is.</h2>
+      <p>The hard part was never the payback arithmetic — it is knowing which operation is
+      actually short, whether the hours you are saving are on the bottleneck, and what your
+      true capacity is once you stop letting the plan load machines past 100%. I build those
+      models for a living: I am the sole technical owner of 12 production decision tools at a
+      Fortune 100 heavy-equipment manufacturer's plant — capacity planning, machine and labor
+      allocation, demand fulfillment.</p>
+      <p><b>If you want this run against your real routings, demand and capacity</b> rather
+      than a shortlist of estimates, that is a two-week fixed-scope engagement with a written
+      recommendation at the end of it.</p>
+      <div id="leadMount"></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Built by Mahesh Raju — decision-systems engineer.</span>
+    <span>Runs entirely in your browser. Nothing you type here is sent anywhere.</span>
+  </footer>
+</div>
+
+<script>
+/* Set this to a form endpoint (e.g. a Formspree form URL) to collect enquiries
+   directly. Left empty, the page shows contact details instead, which is the
+   correct behaviour anywhere an outbound POST is blocked. */
+var FORM_ENDPOINT = "";
+var CONTACT_EMAIL = "mahesh.raju.official@gmail.com";
+var CONTACT_LINKEDIN = "https://linkedin.com/in/maheshraju25";
+
+var WEIGHTS = { payback:30, npvRatio:35, irr:20, capitalPreserved:15 };
+var WSUM = WEIGHTS.payback + WEIGHTS.npvRatio + WEIGHTS.irr + WEIGHTS.capitalPreserved;
+var ANCHORS = { paybackBest:0.75, paybackWorst:4.0, npvRatioBest:4.0, irrBest:0.75 };
+var LEVELS = {
+  realization:[0.60,0.70,0.80,0.90,1.00],
+  laborMult:[0.80,0.90,1.00,1.10,1.20],
+  capOverrun:[1.00,1.10,1.20,1.30,1.40]
+};
+
+var FIELDS = [
+  ["capital","Capital cost",500],
+  ["install","Installation",250],
+  ["training","Training / tooling",100],
+  ["recurringPerYear","Recurring $/yr",100],
+  ["hoursSavedPerWeek","Hours saved /wk",0.5],
+  ["scrapReductionPerYear","Scrap avoided $/yr",100],
+  ["addedUnitsPerYear","Added units /yr",10],
+  ["marginPerUnit","Margin $/unit",1],
+  ["life","Useful life (yr)",1]
+];
+
+function example(){ return [
+  { name:"Collaborative robot cell", capital:26000, install:2500, training:800,
+    recurringPerYear:2200, hoursSavedPerWeek:7, scrapReductionPerYear:1200,
+    addedUnitsPerYear:0, marginPerUnit:0, life:7 },
+  { name:"Used bar feeder, Gen 2 lathe", capital:14000, install:1600, training:0,
+    recurringPerYear:900, hoursSavedPerWeek:9, scrapReductionPerYear:600,
+    addedUnitsPerYear:0, marginPerUnit:0, life:10 },
+  { name:"Pallet-change fixturing, VMC #3", capital:8200, install:1200, training:0,
+    recurringPerYear:250, hoursSavedPerWeek:3.5, scrapReductionPerYear:400,
+    addedUnitsPerYear:0, marginPerUnit:0, life:8 },
+  { name:"In-process vision gauging", capital:19500, install:4200, training:1500,
+    recurringPerYear:1800, hoursSavedPerWeek:2, scrapReductionPerYear:9500,
+    addedUnitsPerYear:0, marginPerUnit:0, life:6 },
+  { name:"Automated deburr station", capital:31500, install:3800, training:1200,
+    recurringPerYear:2400, hoursSavedPerWeek:11, scrapReductionPerYear:2000,
+    addedUnitsPerYear:0, marginPerUnit:0, life:8 }
+]; }
+
+var opts = example();
+
+/* ---------- engine ---------- */
+var clamp = function(x,lo,hi){ return Math.min(hi, Math.max(lo,x)); };
+function invested(o){ return n(o.capital)+n(o.install)+n(o.training); }
+function n(v){ v = Number(v); return isFinite(v) ? v : 0; }
+function benefit(o,rate){
+  return n(o.hoursSavedPerWeek)*52*rate + n(o.scrapReductionPerYear)
+       + n(o.addedUnitsPerYear)*n(o.marginPerUnit);
+}
+function cashflow(o,rate){ return benefit(o,rate) - n(o.recurringPerYear); }
+function npv(cf,life,r,I){
+  if(r === 0) return -I + cf*life;
+  return -I + cf*(1-Math.pow(1+r,-life))/r;
+}
+function irr(cf,life,I){
+  if(cf <= 0 || life <= 0) return null;
+  if(cf*life <= I) return null;
+  var lo=-0.9499, hi=10.0, f=function(r){ return npv(cf,life,r,I); };
+  if(f(lo) < 0 || f(hi) > 0) return null;
+  for(var i=0;i<200;i++){ var m=(lo+hi)/2; if(f(m)>0) lo=m; else hi=m; }
+  return (lo+hi)/2;
+}
+function evaluate(o,g){
+  var I = invested(o), cf = cashflow(o,g.laborRate), life = Math.max(0,n(o.life));
+  var gated = I > g.gate || I <= 0;
+  var pv = npv(cf,life,g.discountRate,I), r = irr(cf,life,I);
+  var pb = cf > 0 ? I/cf : Infinity;
+  var ratio = I > 0 ? pv/I : 0;
+  var sPb = clamp(100*(ANCHORS.paybackWorst-pb)/(ANCHORS.paybackWorst-ANCHORS.paybackBest),0,100);
+  var sNpv = clamp(100*ratio/ANCHORS.npvRatioBest,0,100);
+  var sIrr = r === null ? 0 :
+    clamp(100*(r-g.discountRate)/Math.max(1e-9,ANCHORS.irrBest-g.discountRate),0,100);
+  var sCap = g.gate > 0 ? clamp(100*(1-I/g.gate),0,100) : 0;
+  var score = gated ? null :
+    (WEIGHTS.payback*sPb + WEIGHTS.npvRatio*sNpv + WEIGHTS.irr*sIrr
+     + WEIGHTS.capitalPreserved*sCap)/WSUM;
+  return { name:o.name, I:I, cf:cf, payback:pb, npv:pv, irr:r, gated:gated,
+           score:score, unspent:g.gate-I, life:life,
+           parts:{ sPb:sPb, sNpv:sNpv, sIrr:sIrr, sCap:sCap } };
+}
+function rank(list,g){
+  var rows = list.map(function(o){ return evaluate(o,g); });
+  var live = rows.filter(function(r){ return !r.gated; })
+                 .sort(function(a,b){ return b.score-a.score; });
+  var dead = rows.filter(function(r){ return r.gated; });
+  return { ranked:live, excluded:dead, winner:live.length ? live[0].name : null };
+}
+function sweep(list,g){
+  var tally = {}, cases = 0, none = 0;
+  for(var a=0;a<LEVELS.realization.length;a++){
+   for(var b=0;b<LEVELS.laborMult.length;b++){
+    for(var c=0;c<LEVELS.capOverrun.length;c++){
+      var rz = LEVELS.realization[a], lm = LEVELS.laborMult[b], ov = LEVELS.capOverrun[c];
+      var perturbed = list.map(function(o){
+        return { name:o.name, life:o.life,
+          capital:n(o.capital)*ov, install:n(o.install)*ov, training:n(o.training)*ov,
+          recurringPerYear:o.recurringPerYear,
+          hoursSavedPerWeek:n(o.hoursSavedPerWeek)*rz,
+          scrapReductionPerYear:n(o.scrapReductionPerYear)*rz,
+          addedUnitsPerYear:n(o.addedUnitsPerYear)*rz, marginPerUnit:o.marginPerUnit };
+      });
+      var res = rank(perturbed,{ gate:g.gate, laborRate:g.laborRate*lm,
+                                 discountRate:g.discountRate });
+      cases++;
+      if(!res.winner){ none++; continue; }
+      tally[res.winner] = (tally[res.winner]||0)+1;
+    }
+   }
+  }
+  var sorted = Object.keys(tally).map(function(k){ return [k,tally[k]]; })
+                     .sort(function(x,y){ return y[1]-x[1]; });
+  return { cases:cases, none:none, tally:sorted };
+}
+
+/* ---------- formatting ---------- */
+function money(v){
+  if(!isFinite(v)) return "—";
+  var s = Math.abs(v) >= 1000 ? Math.round(v).toLocaleString("en-US")
+                              : (Math.round(v*10)/10).toLocaleString("en-US");
+  return (v < 0 ? "−$" : "$") + s.replace("-","");
+}
+function yrs(v){ return isFinite(v) ? v.toFixed(2)+" yr" : "never"; }
+function pct(v){ return v === null ? "—" : (v*100).toFixed(0)+"%"; }
+var esc = function(s){ return String(s).replace(/[&<>"']/g, function(c){
+  return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]; }); };
+
+function globals(){
+  return { gate:n(document.getElementById("gate").value),
+           laborRate:n(document.getElementById("rate").value),
+           discountRate:n(document.getElementById("disc").value)/100 };
+}
+
+/* ---------- render ---------- */
+function render(){
+  var g = globals();
+  var res = rank(opts,g);
+  var sw = sweep(opts,g);
+  var win = res.ranked[0] || null;
+
+  document.getElementById("gateCount").textContent =
+    res.ranked.length + " of " + opts.length;
+  document.getElementById("gateCountHint").textContent = res.excluded.length
+    ? res.excluded.length + " excluded before scoring"
+    : "all options are fundable";
+  document.getElementById("optCount").textContent =
+    opts.length + (opts.length === 1 ? " option" : " options");
+
+  /* rail */
+  document.getElementById("railName").textContent = win ? win.name : "No fundable option";
+  document.getElementById("railFigs").innerHTML = win
+    ? '<span>payback <b>'+yrs(win.payback)+'</b></span>'
+    + '<span>NPV <b>'+money(win.npv)+'</b></span>'
+    + '<span>unspent <b>'+money(win.unspent)+'</b></span>'
+    + '<span>survives <b>'+Math.round(100*(sw.tally.length && sw.tally[0][0]===win.name
+        ? sw.tally[0][1] : (function(){ for(var i=0;i<sw.tally.length;i++){
+            if(sw.tally[i][0]===win.name) return sw.tally[i][1]; } return 0; })())/sw.cases)
+    + '%</b> of 125</span>'
+    : '<span>every option is above the gate</span>';
+
+  /* stamp */
+  var stamp = document.getElementById("stamp");
+  if(!win){
+    stamp.innerHTML =
+      '<div class="stamp-top none"><div class="stamp-label">Nothing clears the gate</div>'
+    + '<div class="stamp-name">No recommendation</div>'
+    + '<p class="stamp-why">Every option on the list costs more than the '+money(g.gate)
+    + ' gate once installation and training are counted. Either the gate moves or the'
+    + ' shortlist does.</p></div>';
+  } else {
+    var winShare = 0;
+    for(var i=0;i<sw.tally.length;i++){ if(sw.tally[i][0]===win.name) winShare = sw.tally[i][1]; }
+    var second = res.ranked[1];
+    var why;
+    if(second){
+      var edge = [];
+      if(win.payback < second.payback) edge.push("pays back "
+        + ((second.payback-win.payback)).toFixed(2)+" yr sooner");
+      if(win.npv > second.npv) edge.push("returns "+money(win.npv-second.npv)+" more NPV");
+      if(win.I < second.I) edge.push("costs "+money(second.I-win.I)+" less to install");
+      why = edge.length
+        ? "Against " + second.name + ", it " + edge.slice(0,2).join(" and ")
+          + ". It leaves " + money(win.unspent) + " of the gate unspent."
+        : "It leads on the weighted score and leaves " + money(win.unspent)
+          + " of the gate unspent.";
+    } else {
+      why = "It is the only option that clears the gate, leaving "
+          + money(win.unspent) + " unspent.";
+    }
+    stamp.innerHTML =
+      '<div class="stamp-top"><div class="stamp-label">Recommended</div>'
+    + '<div class="stamp-name">'+esc(win.name)+'</div>'
+    + '<p class="stamp-why">'+esc(why)+'</p></div>'
+    + '<dl class="figs">'
+    + '<div class="fig"><dt>Payback</dt><dd>'+yrs(win.payback)+'</dd></div>'
+    + '<div class="fig"><dt>NPV</dt><dd>'+money(win.npv)
+      +'</dd><div class="sub">over '+win.life+' yr at '
+      +(g.discountRate*100).toFixed(1)+'%</div></div>'
+    + '<div class="fig"><dt>IRR</dt><dd>'+pct(win.irr)+'</dd></div>'
+    + '<div class="fig"><dt>Invested</dt><dd>'+money(win.I)
+      +'</dd><div class="sub">'+money(win.unspent)+' left of gate</div></div>'
+    + '</dl>';
+  }
+
+  /* ranked table */
+  var tb = document.getElementById("rankBody");
+  var html = "";
+  res.ranked.forEach(function(r,i){
+    html += '<tr class="'+(i===0?"top":"")+'">'
+      + '<td><span class="rk">'+(i+1)+'</span><span class="oname">'+esc(r.name)+'</span>'
+      + '<span class="bar"><i style="width:'+r.score.toFixed(1)+'%"></i></span></td>'
+      + '<td>'+money(r.I)+'</td><td>'+yrs(r.payback)+'</td>'
+      + '<td>'+money(r.npv)+'</td><td>'+pct(r.irr)+'</td>'
+      + '<td><b>'+r.score.toFixed(1)+'</b></td></tr>';
+  });
+  res.excluded.forEach(function(r){
+    html += '<tr class="gated"><td><span class="rk">—</span>'
+      + '<span class="oname">'+esc(r.name)+'</span></td>'
+      + '<td>'+money(r.I)+'</td><td colspan="3" style="text-align:left">'
+      + (r.I > g.gate
+          ? 'over gate by '+money(r.I-g.gate)
+          : 'no capital entered')
+      + '</td><td><span class="pill">Not scored</span></td></tr>';
+  });
+  if(!html) html = '<tr><td colspan="6" style="text-align:left;color:var(--ink-3)">'
+    + 'Add an option to begin.</td></tr>';
+  tb.innerHTML = html;
+
+  /* sweep */
+  var swEl = document.getElementById("sweep");
+  var lead = sw.tally[0];
+  var winPct = 0;
+  if(win){ for(var k=0;k<sw.tally.length;k++){
+    if(sw.tally[k][0]===win.name) winPct = 100*sw.tally[k][1]/sw.cases; } }
+  var verdictTxt, verdictCol;
+  if(!win){ verdictTxt = "no base case"; verdictCol = "var(--ink-3)"; }
+  else if(winPct >= 80){ verdictTxt = "holds"; verdictCol = "var(--ok)"; }
+  else if(winPct >= 50){ verdictTxt = "mostly holds"; verdictCol = "var(--warn)"; }
+  else { verdictTxt = "does not hold"; verdictCol = "var(--bad)"; }
+
+  var rows = "";
+  sw.tally.forEach(function(t){
+    var p = 100*t[1]/sw.cases;
+    rows += '<div class="sw-row'+(win && t[0]===win.name ? " lead":"")+'">'
+      + '<span class="n">'+esc(t[0])+'</span>'
+      + '<span class="v">'+t[1]+' / '+sw.cases+' · '+p.toFixed(0)+'%</span>'
+      + '<span class="sw-bar"><i style="width:'+p.toFixed(1)+'%"></i></span></div>';
+  });
+  if(sw.none){
+    var p0 = 100*sw.none/sw.cases;
+    rows += '<div class="sw-row"><span class="n" style="color:var(--bad)">'
+      + 'Nothing fundable</span><span class="v">'+sw.none+' / '+sw.cases+' · '
+      + p0.toFixed(0)+'%</span><span class="sw-bar"><i style="width:'+p0.toFixed(1)
+      + '%;background:var(--bad)"></i></span></div>';
+  }
+  swEl.innerHTML =
+    '<div class="sweep-head"><h3>Does the recommendation survive its own assumptions?</h3>'
+  + '<span class="sweep-verdict" style="color:'+verdictCol+'">'
+  + (win ? winPct.toFixed(0)+'% · '+verdictTxt : verdictTxt)+'</span></div>'
+  + '<div class="sweep-rows">'+rows+'</div>'
+  + '<div class="sweep-note">'+sw.cases+' cases: benefit realisation 60–100%, '
+  + 'labor rate ±20%, capital overrun 0–40%. Each case is re-gated and re-ranked from '
+  + 'scratch, so an overrun can push an option out of the budget entirely.'
+  + (win && winPct < 50
+      ? ' <b>Your base-case pick wins a minority of cases.</b> The ranking is being decided '
+        + 'by estimates you have not pinned down, not by the economics.'
+      : '')
+  + '</div>';
+}
+
+/* ---------- option editor ---------- */
+function renderOpts(){
+  var g = globals();
+  var host = document.getElementById("opts");
+  host.innerHTML = "";
+  opts.forEach(function(o,i){
+    var I = invested(o), over = I > g.gate;
+    var card = document.createElement("div");
+    card.className = "opt" + (over ? " over" : "");
+    var fields = FIELDS.map(function(f){
+      return '<div class="f"><label for="f'+i+'_'+f[0]+'">'+f[1]+'</label>'
+        + '<input type="number" id="f'+i+'_'+f[0]+'" data-i="'+i+'" data-k="'+f[0]+'" '
+        + 'step="'+f[2]+'" min="0" value="'+n(o[f[0]])+'"></div>';
+    }).join("");
+    var cf = cashflow(o,g.laborRate);
+    card.innerHTML =
+      '<div class="opt-head"><span class="idx">'+String(i+1).padStart(2,"0")+'</span>'
+    + '<input type="text" id="name'+i+'" data-i="'+i+'" data-k="name" '
+    + 'value="'+esc(o.name)+'" aria-label="Option name">'
+    + '<button class="kill" type="button" data-del="'+i+'" '
+    + 'aria-label="Remove option">&times;</button></div>'
+    + '<div class="opt-grid">'+fields+'</div>'
+    + '<div class="opt-foot"><span>installed <b>'+money(I)+'</b></span>'
+    + '<span>net <b>'+money(cf)+'</b>/yr</span>'
+    + (over ? '<span class="over-msg">over gate by '+money(I-g.gate)+'</span>'
+            : '<span>'+money(g.gate-I)+' of gate left</span>')
+    + '</div>';
+    host.appendChild(card);
+  });
+}
+
+function refresh(){ renderOpts(); render(); }
+
+document.addEventListener("input", function(e){
+  var t = e.target;
+  if(t.id === "gate" || t.id === "rate" || t.id === "disc"){ refresh(); return; }
+  var i = t.getAttribute("data-i"), k = t.getAttribute("data-k");
+  if(i === null || !k) return;
+  opts[+i][k] = k === "name" ? t.value : n(t.value);
+  render();
+  /* keep the per-card footer and over-gate styling live without stealing focus */
+  var g = globals(), o = opts[+i], I = invested(o), over = I > g.gate;
+  var card = t.closest(".opt");
+  if(card){
+    card.classList.toggle("over", over);
+    var foot = card.querySelector(".opt-foot");
+    if(foot) foot.innerHTML = '<span>installed <b>'+money(I)+'</b></span>'
+      + '<span>net <b>'+money(cashflow(o,g.laborRate))+'</b>/yr</span>'
+      + (over ? '<span class="over-msg">over gate by '+money(I-g.gate)+'</span>'
+              : '<span>'+money(g.gate-I)+' of gate left</span>');
+  }
+});
+
+document.addEventListener("click", function(e){
+  var del = e.target.getAttribute && e.target.getAttribute("data-del");
+  if(del !== null && del !== undefined && del !== ""){
+    opts.splice(+del,1); refresh(); return;
+  }
+  if(e.target.id === "addOpt"){
+    opts.push({ name:"New option "+(opts.length+1), capital:10000, install:1000,
+      training:0, recurringPerYear:500, hoursSavedPerWeek:4,
+      scrapReductionPerYear:0, addedUnitsPerYear:0, marginPerUnit:0, life:7 });
+    refresh();
+    var cards = document.querySelectorAll(".opt-head input[type=text]");
+    if(cards.length) cards[cards.length-1].focus();
+    return;
+  }
+  if(e.target.id === "resetAll"){ opts = example(); refresh(); return; }
+  if(e.target.id === "copyOut"){ copyResults(); return; }
+});
+
+function copyResults(){
+  var g = globals(), res = rank(opts,g), sw = sweep(opts,g);
+  var L = [];
+  L.push("AUTOMATION CAPITAL SCREEN");
+  L.push("Gate " + money(g.gate) + " · labor " + money(g.laborRate) + "/hr · discount "
+    + (g.discountRate*100).toFixed(1) + "%");
+  L.push("");
+  res.ranked.forEach(function(r,i){
+    L.push((i+1) + ". " + r.name);
+    L.push("   invested " + money(r.I) + " · net " + money(r.cf) + "/yr · payback "
+      + yrs(r.payback) + " · NPV " + money(r.npv) + " · IRR " + pct(r.irr)
+      + " · score " + r.score.toFixed(1));
+  });
+  res.excluded.forEach(function(r){
+    L.push("—  " + r.name + " — " + money(r.I)
+      + " — EXCLUDED, over gate by " + money(r.I-g.gate));
+  });
+  L.push("");
+  L.push("Sensitivity, " + sw.cases + " cases (realisation 60-100%, labor +/-20%, "
+    + "overrun 0-40%):");
+  sw.tally.forEach(function(t){
+    L.push("   " + t[0] + " wins " + t[1] + "/" + sw.cases
+      + " (" + Math.round(100*t[1]/sw.cases) + "%)");
+  });
+  if(sw.none) L.push("   nothing fundable in " + sw.none + " cases");
+  L.push("");
+  L.push("Pre-tax cash flows, no ramp, savings assumed to land at the constraint.");
+  var text = L.join("\n");
+  var note = document.getElementById("copyNote");
+  var done = function(){ note.hidden = false; setTimeout(function(){ note.hidden = true; }, 2000); };
+  try {
+    navigator.clipboard.writeText(text).then(done, function(){ fallbackCopy(text, done); });
+  } catch(err){ fallbackCopy(text, done); }
+}
+function fallbackCopy(text, done){
+  var ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.cssText = "position:fixed;left:-9999px;top:0";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); done(); } catch(e){}
+  setTimeout(function(){ ta.remove(); }, 0);
+}
+
+/* ---------- contact / lead block ---------- */
+(function mountLead(){
+  var m = document.getElementById("leadMount");
+  if(FORM_ENDPOINT){
+    m.innerHTML =
+      '<form class="lead" id="leadForm" novalidate>'
+    + '<div class="row">'
+    + '<div class="f-lead"><label for="ld_name">Name</label>'
+    + '<input type="text" id="ld_name" name="name" required></div>'
+    + '<div class="f-lead"><label for="ld_email">Work email</label>'
+    + '<input type="email" id="ld_email" name="email" required></div>'
+    + '<div class="f-lead"><label for="ld_co">Company</label>'
+    + '<input type="text" id="ld_co" name="company"></div>'
+    + '<div class="f-lead"><label for="ld_what">What is short right now</label>'
+    + '<input type="text" id="ld_what" name="situation"></div>'
+    + '</div>'
+    + '<div class="btn-row"><button class="btn" type="submit" id="ld_go">'
+    + 'Request the two-week screen</button>'
+    + '<span class="lead-msg" id="ld_msg"></span></div></form>';
+    document.getElementById("leadForm").addEventListener("submit", function(ev){
+      ev.preventDefault();
+      var msg = document.getElementById("ld_msg"), btn = document.getElementById("ld_go");
+      var email = document.getElementById("ld_email").value.trim();
+      var name = document.getElementById("ld_name").value.trim();
+      if(!name || !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)){
+        msg.className = "lead-msg err";
+        msg.textContent = "Add a name and a valid work email.";
+        return;
+      }
+      btn.disabled = true;
+      msg.className = "lead-msg"; msg.textContent = "Sending…";
+      var body = new FormData(document.getElementById("leadForm"));
+      fetch(FORM_ENDPOINT, { method:"POST", body:body, headers:{ Accept:"application/json" } })
+        .then(function(r){
+          if(!r.ok) throw new Error("bad status");
+          msg.className = "lead-msg ok";
+          msg.textContent = "Got it — you'll hear back within one business day.";
+          document.getElementById("leadForm").reset();
+        })
+        .catch(function(){
+          msg.className = "lead-msg err";
+          msg.textContent = "That did not send. Email " + CONTACT_EMAIL + " instead.";
+        })
+        .then(function(){ btn.disabled = false; });
+    });
+  } else {
+    m.innerHTML =
+      '<div class="reach">'
+    + '<div class="reach-row"><span class="k">Email</span>'
+    + '<span class="v" id="mailTxt">'+CONTACT_EMAIL+'</span>'
+    + '<button class="btn ghost" type="button" id="mailCopy" '
+    + 'style="padding:5px 10px;font-size:11.5px">Copy</button>'
+    + '<span class="copied" id="mailNote" hidden>Copied</span></div>'
+    + '<div class="reach-row"><span class="k">LinkedIn</span>'
+    + '<span class="v"><a href="'+CONTACT_LINKEDIN+'" target="_blank" '
+    + 'rel="noopener noreferrer">linkedin.com/in/maheshraju25</a></span></div>'
+    + '</div>';
+    document.getElementById("mailCopy").addEventListener("click", function(){
+      var note = document.getElementById("mailNote");
+      var done = function(){ note.hidden = false;
+        setTimeout(function(){ note.hidden = true; }, 2000); };
+      try {
+        navigator.clipboard.writeText(CONTACT_EMAIL).then(done, function(){
+          var r = document.createRange(); r.selectNodeContents(
+            document.getElementById("mailTxt"));
+          var s = getSelection(); s.removeAllRanges(); s.addRange(r);
+        });
+      } catch(e){}
+    });
+  }
+})();
+
+refresh();
+</script>
+</body>
+</html>

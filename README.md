@@ -16,6 +16,25 @@ stated with the assumption that produced them.
 
 ---
 
+### Work with me
+
+I take a small number of fixed-scope engagements with mid-market manufacturers.
+
+**Capacity Reality Check — two weeks, fixed fee.** Your routings, demand and shift
+capacity go into a capacity-respecting allocation model. You get the true shortfall by
+work center, the operations to escalate, and the dollar value of the demand at risk —
+not a plan that "meets" demand by loading machines past 100%.
+
+**[Automation Payback Evaluator](https://maheshrajuofficial-ops.github.io/maheshrajuofficial-ops/tools/automation-payback/)
+— free, runs in your browser.** Rank an automation shortlist against a hard capital
+gate on payback, NPV and IRR, then see how many of 125 what-if cases the pick survives.
+The engine is tested against closed-form NPV/IRR and a strict-dominance invariant over
+40,000 randomized option pairs ([source](tools/automation-payback/)).
+
+Enquiries: mahesh.raju.official@gmail.com
+
+---
+
 ### [remarketing-demand-lab](https://github.com/maheshrajuofficial-ops/remarketing-demand-lab)
 **Demand science: elasticity, forecasting, segmentation, market sizing.**
 
